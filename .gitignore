@@ -1,0 +1,7 @@
+target
+/.settings
+/nativeLibraries
+/JOCLBLAS_0_0_1-windows-x86_64.dll
+/.classpath
+/.project
+/clBLAS.dll

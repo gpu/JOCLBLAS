@@ -1,2 +1,8 @@
 # JOCLBLAS
-JOCLBLAS - Java bindings for clBLAS
+
+JOCLBLAS - Java Bindings for clBLAS - http://jocl.org
+
+**Under construction!**
+
+
+   
