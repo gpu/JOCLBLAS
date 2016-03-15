@@ -1255,10 +1255,10 @@ extern "C" {
     /*
     * Class:     org_jocl_blas_CLBLAS
     * Method:    clblasWriteSubMatrixAsyncNative
-    * Signature: (IJLorg/jocl/Pointer;JJJJJJLorg/jocl/cl_mem;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;Lorg/jocl/cl_event;)I
+    * Signature: (IJLorg/jocl/Pointer;JJJJJJLorg/jocl/cl_mem;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;[Lorg/jocl/cl_event;)I
     */
     JNIEXPORT jint JNICALL Java_org_jocl_blas_CLBLAS_clblasWriteSubMatrixAsyncNative
-        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobject);
+        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobjectArray);
 
     /*
     * Class:     org_jocl_blas_CLBLAS
@@ -1271,10 +1271,10 @@ extern "C" {
     /*
     * Class:     org_jocl_blas_CLBLAS
     * Method:    clblasReadSubMatrixAsyncNative
-    * Signature: (IJLorg/jocl/cl_mem;JJJJJJLorg/jocl/Pointer;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;Lorg/jocl/cl_event;)I
+    * Signature: (IJLorg/jocl/cl_mem;JJJJJJLorg/jocl/Pointer;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;[Lorg/jocl/cl_event;)I
     */
     JNIEXPORT jint JNICALL Java_org_jocl_blas_CLBLAS_clblasReadSubMatrixAsyncNative
-        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobject);
+        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobjectArray);
 
     /*
     * Class:     org_jocl_blas_CLBLAS
@@ -1287,10 +1287,10 @@ extern "C" {
     /*
     * Class:     org_jocl_blas_CLBLAS
     * Method:    clblasCopySubMatrixAsyncNative
-    * Signature: (IJLorg/jocl/cl_mem;JJJJJJLorg/jocl/cl_mem;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;Lorg/jocl/cl_event;)I
+    * Signature: (IJLorg/jocl/cl_mem;JJJJJJLorg/jocl/cl_mem;JJJJJJJJLorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;[Lorg/jocl/cl_event;)I
     */
     JNIEXPORT jint JNICALL Java_org_jocl_blas_CLBLAS_clblasCopySubMatrixAsyncNative
-        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobject);
+        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jlong, jobject, jint, jobjectArray, jobjectArray);
 
     /*
     * Class:     org_jocl_blas_CLBLAS
@@ -1399,10 +1399,10 @@ extern "C" {
     /*
     * Class:     org_jocl_blas_CLBLAS
     * Method:    clblasFillVectorAsyncNative
-    * Signature: (JJLorg/jocl/cl_mem;JLorg/jocl/Pointer;Lorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;Lorg/jocl/cl_event;)I
+    * Signature: (JJLorg/jocl/cl_mem;JLorg/jocl/Pointer;Lorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;[Lorg/jocl/cl_event;)I
     */
     JNIEXPORT jint JNICALL Java_org_jocl_blas_CLBLAS_clblasFillVectorAsyncNative
-        (JNIEnv *, jclass, jlong, jlong, jobject, jlong, jobject, jobject, jint, jobjectArray, jobject);
+        (JNIEnv *, jclass, jlong, jlong, jobject, jlong, jobject, jobject, jint, jobjectArray, jobjectArray);
 
     /*
     * Class:     org_jocl_blas_CLBLAS
@@ -1423,10 +1423,10 @@ extern "C" {
     /*
     * Class:     org_jocl_blas_CLBLAS
     * Method:    clblasFillSubMatrixAsyncNative
-    * Signature: (IJLorg/jocl/cl_mem;JJJJIIJJLorg/jocl/Pointer;Lorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;Lorg/jocl/cl_event;)I
+    * Signature: (IJLorg/jocl/cl_mem;JJJJIIJJLorg/jocl/Pointer;Lorg/jocl/cl_command_queue;I[Lorg/jocl/cl_event;[Lorg/jocl/cl_event;)I
     */
     JNIEXPORT jint JNICALL Java_org_jocl_blas_CLBLAS_clblasFillSubMatrixAsyncNative
-        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jint, jint, jlong, jlong, jobject, jobject, jint, jobjectArray, jobject);
+        (JNIEnv *, jclass, jint, jlong, jobject, jlong, jlong, jlong, jlong, jint, jint, jlong, jlong, jobject, jobject, jint, jobjectArray, jobjectArray);
 
 #ifdef __cplusplus
 }

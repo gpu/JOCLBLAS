@@ -100,28 +100,40 @@ public class CLBLAS
         return result;
     }
     
+    /**
+     * If the given result is <code>null</code> and exceptions have been 
+     * enabled, then this method will throw a CLException. Otherwise, 
+     * the given result is simply returned.
+     *
+     * @param result The result to check
+     * @return The result that was given as the parameter
+     * @throws CLException If exceptions have been enabled and
+     * the given result is <code>null</code>
+     */
+    private static cl_mem checkResult(cl_mem result)
+    {
+        if (exceptionsEnabled && result == null)
+        {
+            throw new CLException("Could not create cl_mem");
+        }
+        return result;
+    }
+    
+    
     public static final int JOCL_BLAS_STATUS_INTERNAL_ERROR = -32786;
 
     
     
     
-    /**@}*/
     /**
-     * @defgroup VERSION Version information
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Get the clblas library version info.
+     * Get the clblas library version info..
      *
-     * @param (out) major        Location to store library's major version.
-     * @param (out) minor        Location to store library's minor version.
-     * @param (out) patch        Location to store library's patch version.
+     * @param major (out)        Location to store library's major version.
+     * @param minor (out)        Location to store library's minor version.
+     * @param patch (out)        Location to store library's patch version.
      *
-     * @returns always \b clblasSuccess.
+     * @return always  clblasSuccess.
      *
-     * @ingroup VERSION
-     * </pre>
      */
     public static int clblasGetVersion(
         int[] major, 
@@ -136,26 +148,18 @@ public class CLBLAS
         int[] patch);
 
 
-    /**@}*/
     /**
-     * @defgroup INIT Initialize library
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Initialize the clblas library.
+     * Initialize the clblas library..
      *
      * Must be called before any other clblas API function is invoked.
-     * @note This function is not thread-safe.
+     * This function is not thread-safe.
      *
      * @return
-     *   - \b clblasSucces on success;
-     *   - \b clblasOutOfHostMemory if there is not enough of memory to allocate
+     *   -  clblasSucces on success;
+     *   -  clblasOutOfHostMemory if there is not enough of memory to allocate
      *     library's internal structures;
-     *   - \b clblasOutOfResources in case of requested resources scarcity.
+     *   -  clblasOutOfResources in case of requested resources scarcity.
      *
-     * @ingroup INIT
-     * </pre>
      */
     public static int clblasSetup()
     {
@@ -165,15 +169,12 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Finalize the usage of the clblas library.
+     * Finalize the usage of the clblas library..
      *
      * Frees all memory allocated for different computational kernel and other
      * internal data.
-     * @note This function is not thread-safe.
+     * This function is not thread-safe.
      *
-     * @ingroup INIT
-     * </pre>
      */
     public static void clblasTeardown()
     {
@@ -182,69 +183,48 @@ public class CLBLAS
     private static native void clblasTeardownNative();
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup BLAS1 BLAS-1 functions
-     *
-     * The Level 1 Basic Linear Algebra Subprograms are functions that perform
-     * vector-vector operations.
-     * </pre>
-     */
-    /**@{*/
-    /**@}*/
-    /**
-     * <pre>
-     * @defgroup SWAP SWAP  - Swap elements from 2 vectors
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * interchanges two vectors of float.
+     * interchanges two vectors of float..
      *
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SWAP
-     * </pre>
      */
     public static int clblasSswap(
         long N, 
@@ -278,41 +258,36 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sswap.c
      * Example of how to use the @ref clblasSswap function.
-     * </pre>
      */
     /**
-     * <pre>
-     * interchanges two vectors of double.
+     * interchanges two vectors of double..
      *
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSswap() function otherwise.
      *
-     * @ingroup SWAP
-     * </pre>
      */
     public static int clblasDswap(
         long N, 
@@ -346,33 +321,30 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * interchanges two vectors of complex-float elements.
+     * interchanges two vectors of complex-float elements..
      *
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSwap() function otherwise.
      *
-     * @ingroup SWAP
-     * </pre>
      */
     public static int clblasCswap(
         long N, 
@@ -406,33 +378,30 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * interchanges two vectors of double-complex elements.
+     * interchanges two vectors of double-complex elements..
      *
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasDwap() function otherwise.
      *
-     * @ingroup SWAP
-     * </pre>
      */
     public static int clblasZswap(
         long N, 
@@ -465,57 +434,46 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SCAL SCAL  - Scales a vector by a constant
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Scales a float vector by a float constant
+     * Scales a float vector by a float constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - \b incx zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     -  incx zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SCAL
-     * </pre>
      */
     public static int clblasSscal(
         long N, 
@@ -545,39 +503,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sscal.c
      * Example of how to use the @ref clblasSscal function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Scales a double vector by a double constant
+     * Scales a double vector by a double constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSscal() function otherwise.
      *
-     * @ingroup SCAL
-     * </pre>
      */
     public static int clblasDscal(
         long N, 
@@ -607,31 +560,28 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Scales a complex-float vector by a complex-float constant
+     * Scales a complex-float vector by a complex-float constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSscal() function otherwise.
      *
-     * @ingroup SCAL
-     * </pre>
      */
     public static int clblasCscal(
         long N, 
@@ -661,31 +611,28 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Scales a complex-double vector by a complex-double constant
+     * Scales a complex-double vector by a complex-double constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasDscal() function otherwise.
      *
-     * @ingroup SCAL
-     * </pre>
      */
     public static int clblasZscal(
         long N, 
@@ -714,57 +661,46 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SSCAL SSCAL  - Scales a complex vector by a real constant
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Scales a complex-float vector by a float constant
+     * Scales a complex-float vector by a float constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - \b incx zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     -  incx zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SSCAL
-     * </pre>
      */
     public static int clblasCsscal(
         long N, 
@@ -794,39 +730,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_csscal.c
      * Example of how to use the @ref clblasCsscal function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Scales a complex-double vector by a double constant
+     * Scales a complex-double vector by a double constant.
      *
      *   - \f$ X \leftarrow \alpha X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasCsscal() function otherwise.
      *
-     * @ingroup SSCAL
-     * </pre>
      */
     public static int clblasZdscal(
         long N, 
@@ -855,60 +786,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup COPY COPY  - Copies elements from vector X to vector Y
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Copies float elements from vector X to vector Y
+     * Copies float elements from vector X to vector Y.
      *
      *   - \f$ Y \leftarrow X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup COPY
-     * </pre>
      */
     public static int clblasScopy(
         long N, 
@@ -942,42 +862,37 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_scopy.c
      * Example of how to use the @ref clblasScopy function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Copies double elements from vector X to vector Y
+     * Copies double elements from vector X to vector Y.
      *
      *   - \f$ Y \leftarrow X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasScopy() function otherwise.
      *
-     * @ingroup COPY
-     * </pre>
      */
     public static int clblasDcopy(
         long N, 
@@ -1011,34 +926,31 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies complex-float elements from vector X to vector Y
+     * Copies complex-float elements from vector X to vector Y.
      *
      *   - \f$ Y \leftarrow X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasScopy() function otherwise.
      *
-     * @ingroup COPY
-     * </pre>
      */
     public static int clblasCcopy(
         long N, 
@@ -1072,34 +984,31 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies complex-double elements from vector X to vector Y
+     * Copies complex-double elements from vector X to vector Y.
      *
      *   - \f$ Y \leftarrow X \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasDcopy() function otherwise.
      *
-     * @ingroup COPY
-     * </pre>
      */
     public static int clblasZcopy(
         long N, 
@@ -1132,61 +1041,50 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup AXPY AXPY  - Scale X and add to Y
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Scale vector X of float elements and add to Y
+     * Scale vector X of float elements and add to Y.
      *
      *   - \f$ Y \leftarrow \alpha X + Y \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup AXPY
-     * </pre>
      */
     public static int clblasSaxpy(
         long N, 
@@ -1222,43 +1120,38 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_saxpy.c
      * Example of how to use the @ref clblasSaxpy function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Scale vector X of double elements and add to Y
+     * Scale vector X of double elements and add to Y.
      *
      *   - \f$ Y \leftarrow \alpha X + Y \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSaxpy() function otherwise.
      *
-     * @ingroup AXPY
-     * </pre>
      */
     public static int clblasDaxpy(
         long N, 
@@ -1294,35 +1187,32 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Scale vector X of complex-float elements and add to Y
+     * Scale vector X of complex-float elements and add to Y.
      *
      *   - \f$ Y \leftarrow \alpha X + Y \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSaxpy() function otherwise.
      *
-     * @ingroup AXPY
-     * </pre>
      */
     public static int clblasCaxpy(
         long N, 
@@ -1358,35 +1248,32 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Scale vector X of double-complex elements and add to Y
+     * Scale vector X of double-complex elements and add to Y.
      *
      *   - \f$ Y \leftarrow \alpha X + Y \f$
      *
-     * @param (in) N         Number of elements in vector \b X.
-     * @param (in) alpha     The constant factor for vector \b X.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X.
+     * @param alpha (in)     The constant factor for vector  X.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasDaxpy() function otherwise.
      *
-     * @ingroup AXPY
-     * </pre>
      */
     public static int clblasZaxpy(
         long N, 
@@ -1421,62 +1308,51 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup DOT DOT  - Dot product of two vectors
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * dot product of two vectors containing float elements
+     * dot product of two vectors containing float elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, \b Y or \b dotProduct object is
+     *   -  clblasInvalidMemObject if either  X,  Y or  dotProduct object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasSdot(
         long N, 
@@ -1516,44 +1392,39 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sdot.c
      * Example of how to use the @ref clblasSdot function.
-     * </pre>
      */
     /**
-     * <pre>
-     * dot product of two vectors containing double elements
+     * dot product of two vectors containing double elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSdot() function otherwise.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasDdot(
         long N, 
@@ -1593,36 +1464,33 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * dot product of two vectors containing float-complex elements
+     * dot product of two vectors containing float-complex elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSdot() function otherwise.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasCdotu(
         long N, 
@@ -1662,38 +1530,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * dot product of two vectors containing double-complex elements
+     * dot product of two vectors containing double-complex elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSdot() function otherwise.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasZdotu(
         long N, 
@@ -1733,36 +1598,33 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * dot product of two vectors containing float-complex elements conjugating the first vector
+     * dot product of two vectors containing float-complex elements conjugating the first vector.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSdot() function otherwise.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasCdotc(
         long N, 
@@ -1802,38 +1664,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * dot product of two vectors containing double-complex elements conjugating the first vector
+     * dot product of two vectors containing double-complex elements conjugating the first vector.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) dotProduct   Buffer object that will contain the dot-product value
-     * @param (in) offDP         Offset to dot-product in \b dotProduct buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param dotProduct (out)   Buffer object that will contain the dot-product value
+     * @param offDP (in)         Offset to dot-product in  dotProduct buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y             Buffer object storing the vector \b Y.
-     * @param (in) offy          Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param Y (in)             Buffer object storing the vector  Y.
+     * @param offy (in)          Offset of first element of vector  Y in buffer object.
      *                          Counted in elements.
-     * @param (in) incy          Increment for the elements of \b Y. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)          Increment for the elements of  Y. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSdot() function otherwise.
      *
-     * @ingroup DOT
-     * </pre>
      */
     public static int clblasZdotc(
         long N, 
@@ -1872,56 +1731,45 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup ROTG ROTG  - Constructs givens plane rotation
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * construct givens plane rotation on float elements
+     * construct givens plane rotation on float elements.
      *
-     * @param (out) SA           Buffer object that contains SA
-     * @param (in) offSA         Offset to SA in \b SA buffer object.
+     * @param SA (out)           Buffer object that contains SA
+     * @param offSA (in)         Offset to SA in  SA buffer object.
      *                          Counted in elements.
-     * @param (out) SB           Buffer object that contains SB
-     * @param (in) offSB         Offset to SB in \b SB buffer object.
+     * @param SB (out)           Buffer object that contains SB
+     * @param offSB (in)         Offset to SB in  SB buffer object.
      *                          Counted in elements.
-     * @param (out) C            Buffer object that contains C
-     * @param (in) offC          Offset to C in \b C buffer object.
+     * @param C (out)            Buffer object that contains C
+     * @param offC (in)          Offset to C in  C buffer object.
      *                          Counted in elements.
-     * @param (out) S            Buffer object that contains S
-     * @param (in) offS          Offset to S in \b S buffer object.
+     * @param S (out)            Buffer object that contains S
+     * @param offS (in)          Offset to S in  S buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidMemObject if either \b SA, \b SB, \b C or \b S object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidMemObject if either  SA,  SB,  C or  S object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup ROTG
-     * </pre>
      */
     public static int clblasSrotg(
         cl_mem SA, 
@@ -1957,43 +1805,38 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_srotg.c
      * Example of how to use the @ref clblasSrotg function.
-     * </pre>
      */
     /**
-     * <pre>
-     * construct givens plane rotation on double elements
+     * construct givens plane rotation on double elements.
      *
-     * @param (out) DA           Buffer object that contains DA
-     * @param (in) offDA         Offset to DA in \b DA buffer object.
+     * @param DA (out)           Buffer object that contains DA
+     * @param offDA (in)         Offset to DA in  DA buffer object.
      *                          Counted in elements.
-     * @param (out) DB           Buffer object that contains DB
-     * @param (in) offDB         Offset to DB in \b DB buffer object.
+     * @param DB (out)           Buffer object that contains DB
+     * @param offDB (in)         Offset to DB in  DB buffer object.
      *                          Counted in elements.
-     * @param (out) C            Buffer object that contains C
-     * @param (in) offC          Offset to C in \b C buffer object.
+     * @param C (out)            Buffer object that contains C
+     * @param offC (in)          Offset to C in  C buffer object.
      *                          Counted in elements.
-     * @param (out) S            Buffer object that contains S
-     * @param (in) offS          Offset to S in \b S buffer object.
+     * @param S (out)            Buffer object that contains S
+     * @param offS (in)          Offset to S in  S buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSrotg() function otherwise.
      *
-     * @ingroup ROTG
-     * </pre>
      */
     public static int clblasDrotg(
         cl_mem DA, 
@@ -2029,35 +1872,32 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * construct givens plane rotation on float-complex elements
+     * construct givens plane rotation on float-complex elements.
      *
-     * @param (out) CA           Buffer object that contains CA
-     * @param (in) offCA         Offset to CA in \b CA buffer object.
+     * @param CA (out)           Buffer object that contains CA
+     * @param offCA (in)         Offset to CA in  CA buffer object.
      *                          Counted in elements.
-     * @param (out) CB           Buffer object that contains CB
-     * @param (in) offCB         Offset to CB in \b CB buffer object.
+     * @param CB (out)           Buffer object that contains CB
+     * @param offCB (in)         Offset to CB in  CB buffer object.
      *                          Counted in elements.
-     * @param (out) C            Buffer object that contains C. C is real.
-     * @param (in) offC          Offset to C in \b C buffer object.
+     * @param C (out)            Buffer object that contains C. C is real.
+     * @param offC (in)          Offset to C in  C buffer object.
      *                          Counted in elements.
-     * @param (out) S            Buffer object that contains S
-     * @param (in) offS          Offset to S in \b S buffer object.
+     * @param S (out)            Buffer object that contains S
+     * @param offS (in)          Offset to S in  S buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSrotg() function otherwise.
      *
-     * @ingroup ROTG
-     * </pre>
      */
     public static int clblasCrotg(
         cl_mem CA, 
@@ -2093,35 +1933,32 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * construct givens plane rotation on double-complex elements
+     * construct givens plane rotation on double-complex elements.
      *
-     * @param (out) CA           Buffer object that contains CA
-     * @param (in) offCA         Offset to CA in \b CA buffer object.
+     * @param CA (out)           Buffer object that contains CA
+     * @param offCA (in)         Offset to CA in  CA buffer object.
      *                          Counted in elements.
-     * @param (out) CB           Buffer object that contains CB
-     * @param (in) offCB         Offset to CB in \b CB buffer object.
+     * @param CB (out)           Buffer object that contains CB
+     * @param offCB (in)         Offset to CB in  CB buffer object.
      *                          Counted in elements.
-     * @param (out) C            Buffer object that contains C. C is real.
-     * @param (in) offC          Offset to C in \b C buffer object.
+     * @param C (out)            Buffer object that contains C. C is real.
+     * @param offC (in)          Offset to C in  C buffer object.
      *                          Counted in elements.
-     * @param (out) S            Buffer object that contains S
-     * @param (in) offS          Offset to S in \b S buffer object.
+     * @param S (out)            Buffer object that contains S
+     * @param offS (in)          Offset to S in  S buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasDrotg() function otherwise.
      *
-     * @ingroup ROTG
-     * </pre>
      */
     public static int clblasZrotg(
         cl_mem CA, 
@@ -2156,65 +1993,54 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup ROTMG ROTMG  - Constructs the modified givens rotation
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * construct the modified givens rotation on float elements
+     * construct the modified givens rotation on float elements.
      *
-     * @param (out) SD1          Buffer object that contains SD1
-     * @param (in) offSD1        Offset to SD1 in \b SD1 buffer object.
+     * @param SD1 (out)          Buffer object that contains SD1
+     * @param offSD1 (in)        Offset to SD1 in  SD1 buffer object.
      *                          Counted in elements.
-     * @param (out) SD2          Buffer object that contains SD2
-     * @param (in) offSD2        Offset to SD2 in \b SD2 buffer object.
+     * @param SD2 (out)          Buffer object that contains SD2
+     * @param offSD2 (in)        Offset to SD2 in  SD2 buffer object.
      *                          Counted in elements.
-     * @param (out) SX1          Buffer object that contains SX1
-     * @param (in) offSX1        Offset to SX1 in \b SX1 buffer object.
+     * @param SX1 (out)          Buffer object that contains SX1
+     * @param offSX1 (in)        Offset to SX1 in  SX1 buffer object.
      *                          Counted in elements.
-     * @param (in) SY1           Buffer object that contains SY1
-     * @param (in) offSY1        Offset to SY1 in \b SY1 buffer object.
+     * @param SY1 (in)           Buffer object that contains SY1
+     * @param offSY1 (in)        Offset to SY1 in  SY1 buffer object.
      *                          Counted in elements.
-     * @param (out) SPARAM       Buffer object that contains SPARAM array of minimum length 5
+     * @param SPARAM (out)       Buffer object that contains SPARAM array of minimum length 5
                                 SPARAM(0) = SFLAG
                                 SPARAM(1) = SH11
                                 SPARAM(2) = SH21
                                 SPARAM(3) = SH12
                                 SPARAM(4) = SH22
     
-     * @param (in) offSparam     Offset to SPARAM in \b SPARAM buffer object.
+     * @param offSparam (in)     Offset to SPARAM in  SPARAM buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidMemObject if either \b SX1, \b SY1, \b SD1, \b SD2 or \b SPARAM object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidMemObject if either  SX1,  SY1,  SD1,  SD2 or  SPARAM object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup ROTMG
-     * </pre>
      */
     public static int clblasSrotmg(
         cl_mem SD1, 
@@ -2254,52 +2080,47 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_srotmg.c
      * Example of how to use the @ref clblasSrotmg function.
-     * </pre>
      */
     /**
-     * <pre>
-     * construct the modified givens rotation on double elements
+     * construct the modified givens rotation on double elements.
      *
-     * @param (out) DD1          Buffer object that contains DD1
-     * @param (in) offDD1        Offset to DD1 in \b DD1 buffer object.
+     * @param DD1 (out)          Buffer object that contains DD1
+     * @param offDD1 (in)        Offset to DD1 in  DD1 buffer object.
      *                          Counted in elements.
-     * @param (out) DD2          Buffer object that contains DD2
-     * @param (in) offDD2        Offset to DD2 in \b DD2 buffer object.
+     * @param DD2 (out)          Buffer object that contains DD2
+     * @param offDD2 (in)        Offset to DD2 in  DD2 buffer object.
      *                          Counted in elements.
-     * @param (out) DX1          Buffer object that contains DX1
-     * @param (in) offDX1        Offset to DX1 in \b DX1 buffer object.
+     * @param DX1 (out)          Buffer object that contains DX1
+     * @param offDX1 (in)        Offset to DX1 in  DX1 buffer object.
      *                          Counted in elements.
-     * @param (in) DY1           Buffer object that contains DY1
-     * @param (in) offDY1        Offset to DY1 in \b DY1 buffer object.
+     * @param DY1 (in)           Buffer object that contains DY1
+     * @param offDY1 (in)        Offset to DY1 in  DY1 buffer object.
      *                          Counted in elements.
-     * @param (out) DPARAM       Buffer object that contains DPARAM array of minimum length 5
+     * @param DPARAM (out)       Buffer object that contains DPARAM array of minimum length 5
                                 DPARAM(0) = DFLAG
                                 DPARAM(1) = DH11
                                 DPARAM(2) = DH21
                                 DPARAM(3) = DH12
                                 DPARAM(4) = DH22
     
-     * @param (in) offDparam     Offset to DPARAM in \b DPARAM buffer object.
+     * @param offDparam (in)     Offset to DPARAM in  DPARAM buffer object.
      *                          Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSrotmg() function otherwise.
      *
-     * @ingroup ROTMG
-     * </pre>
      */
     public static int clblasDrotmg(
         cl_mem DD1, 
@@ -2338,60 +2159,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup ROT ROT  - Apply givens rotation
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * applies a plane rotation for float elements
+     * applies a plane rotation for float elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) C         C specifies the cosine, cos.
-     * @param (in) S         S specifies the sine, sin.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param C (in)         C specifies the cosine, cos.
+     * @param S (in)         S specifies the sine, sin.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup ROT
-     * </pre>
      */
     public static int clblasSrot(
         long N, 
@@ -2429,42 +2239,37 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_srot.c
      * Example of how to use the @ref clblasSrot function.
-     * </pre>
      */
     /**
-     * <pre>
-     * applies a plane rotation for double elements
+     * applies a plane rotation for double elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) C         C specifies the cosine, cos.
-     * @param (in) S         S specifies the sine, sin.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param C (in)         C specifies the cosine, cos.
+     * @param S (in)         S specifies the sine, sin.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSrot() function otherwise.
      *
-     * @ingroup ROT
-     * </pre>
      */
     public static int clblasDrot(
         long N, 
@@ -2502,34 +2307,31 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * applies a plane rotation for float-complex elements
+     * applies a plane rotation for float-complex elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) C         C specifies the cosine, cos. This number is real
-     * @param (in) S         S specifies the sine, sin. This number is real
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param C (in)         C specifies the cosine, cos. This number is real
+     * @param S (in)         S specifies the sine, sin. This number is real
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSrot() function otherwise.
      *
-     * @ingroup ROT
-     * </pre>
      */
     public static int clblasCsrot(
         long N, 
@@ -2567,36 +2369,33 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * applies a plane rotation for double-complex elements
+     * applies a plane rotation for double-complex elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) C         C specifies the cosine, cos. This number is real
-     * @param (in) S         S specifies the sine, sin. This number is real
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param C (in)         C specifies the cosine, cos. This number is real
+     * @param S (in)         S specifies the sine, sin. This number is real
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSrot() function otherwise.
      *
-     * @ingroup ROT
-     * </pre>
      */
     public static int clblasZdrot(
         long N, 
@@ -2633,66 +2432,55 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup ROTM ROTM  - Apply modified givens rotation for points in the plane
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * modified givens rotation for float elements
+     * modified givens rotation for float elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) SPARAM    Buffer object that contains SPARAM array of minimum length 5
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param SPARAM (in)    Buffer object that contains SPARAM array of minimum length 5
      *                      SPARAM(1)=SFLAG
      *                      SPARAM(2)=SH11
      *                      SPARAM(3)=SH21
      *                      SPARAM(4)=SH12
      *                      SPARAM(5)=SH22
-     * @param (in) offSparam Offset of first element of array \b SPARAM in buffer object.
+     * @param offSparam (in) Offset of first element of array  SPARAM in buffer object.
      *                      Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b X, \b Y or \b SPARAM object is
+     *   -  clblasInvalidMemObject if either  X,  Y or  SPARAM object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup ROTM
-     * </pre>
      */
     public static int clblasSrotm(
         long N, 
@@ -2730,48 +2518,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_srotm.c
      * Example of how to use the @ref clblasSrotm function.
-     * </pre>
      */
     /**
-     * <pre>
-     * modified givens rotation for double elements
+     * modified givens rotation for double elements.
      *
-     * @param (in) N         Number of elements in vector \b X and \b Y.
-     * @param (out) X        Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param N (in)         Number of elements in vector  X and  Y.
+     * @param X (out)        Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) Y        Buffer object storing the vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (out)        Buffer object storing the vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) DPARAM    Buffer object that contains SPARAM array of minimum length 5
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param DPARAM (in)    Buffer object that contains SPARAM array of minimum length 5
      *                      DPARAM(1)=DFLAG
      *                      DPARAM(2)=DH11
      *                      DPARAM(3)=DH21
      *                      DPARAM(4)=DH12
      *                      DPARAM(5)=DH22
-     * @param (in) offDparam Offset of first element of array \b DPARAM in buffer object.
+     * @param offDparam (in) Offset of first element of array  DPARAM in buffer object.
      *                      Counted in elements.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
     * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSrotm() function otherwise.
      *
-     * @ingroup ROTM
-     * </pre>
      */
     public static int clblasDrotm(
         long N, 
@@ -2808,60 +2591,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup NRM2 NRM2  - Euclidean norm of a vector
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * computes the euclidean norm of vector containing float elements
+     * computes the euclidean norm of vector containing float elements.
      *
      *  NRM2 = sqrt( X' * X )
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) NRM2         Buffer object that will contain the NRM2 value
-     * @param (in) offNRM2       Offset to NRM2 value in \b NRM2 buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param NRM2 (out)         Buffer object that will contain the NRM2 value
+     * @param offNRM2 (in)       Offset to NRM2 value in  NRM2 buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object that can hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object that can hold minimum of (2*N) elements
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if any of \b X or \b NRM2 or \b scratchBuff object is
+     *   -  clblasInvalidMemObject if any of  X or  NRM2 or  scratchBuff object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup NRM2
-     * </pre>
      */
     public static int clblasSnrm2(
         long N, 
@@ -2895,42 +2667,37 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_snrm2.c
      * Example of how to use the @ref clblasSnrm2 function.
-     * </pre>
      */
     /**
-     * <pre>
-     * computes the euclidean norm of vector containing double elements
+     * computes the euclidean norm of vector containing double elements.
      *
      *  NRM2 = sqrt( X' * X )
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) NRM2         Buffer object that will contain the NRM2 value
-     * @param (in) offNRM2       Offset to NRM2 value in \b NRM2 buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param NRM2 (out)         Buffer object that will contain the NRM2 value
+     * @param offNRM2 (in)       Offset to NRM2 value in  NRM2 buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object that can hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object that can hold minimum of (2*N) elements
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSnrm2() function otherwise.
      *
-     * @ingroup NRM2
-     * </pre>
      */
     public static int clblasDnrm2(
         long N, 
@@ -2964,35 +2731,32 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * computes the euclidean norm of vector containing float-complex elements
+     * computes the euclidean norm of vector containing float-complex elements.
      *
      *  NRM2 = sqrt( X**H * X )
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) NRM2         Buffer object that will contain the NRM2 value.
+     * @param N (in)             Number of elements in vector  X.
+     * @param NRM2 (out)         Buffer object that will contain the NRM2 value.
      *                          Note that the answer of Scnrm2 is a real value.
-     * @param (in) offNRM2       Offset to NRM2 value in \b NRM2 buffer object.
+     * @param offNRM2 (in)       Offset to NRM2 value in  NRM2 buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object that can hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object that can hold minimum of (2*N) elements
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSnrm2() function otherwise.
      *
-     * @ingroup NRM2
-     * </pre>
      */
     public static int clblasScnrm2(
         long N, 
@@ -3026,38 +2790,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * computes the euclidean norm of vector containing double-complex elements
+     * computes the euclidean norm of vector containing double-complex elements.
      *
      *  NRM2 = sqrt( X**H * X )
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) NRM2         Buffer object that will contain the NRM2 value.
+     * @param N (in)             Number of elements in vector  X.
+     * @param NRM2 (out)         Buffer object that will contain the NRM2 value.
      *                          Note that the answer of Dznrm2 is a real value.
-     * @param (in) offNRM2       Offset to NRM2 value in \b NRM2 buffer object.
+     * @param offNRM2 (in)       Offset to NRM2 value in  NRM2 buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff  Temporary cl_mem scratch buffer object that can hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff   Temporary (in) cl_mem scratch buffer object that can hold minimum of (2*N) elements
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSnrm2() function otherwise.
      *     executable.
      *
-     * @ingroup NRM2
-     * </pre>
      */
     public static int clblasDznrm2(
         long N, 
@@ -3090,60 +2851,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup iAMAX iAMAX  - Index of max absolute value
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * index of max absolute value in a float array
+     * index of max absolute value in a float array.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) iMax         Buffer object storing the index of first absolute max.
+     * @param N (in)             Number of elements in vector  X.
+     * @param iMax (out)         Buffer object storing the index of first absolute max.
      *                          The index will be of type unsigned int
-     * @param (in) offiMax       Offset for storing index in the buffer iMax
+     * @param offiMax (in)       Offset for storing index in the buffer iMax
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temprory cl_mem object to store intermediate results
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temprory cl_mem object to store intermediate results
                                 It should be able to hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if any of \b iMax \b X or \b scratchBuff object is
+     *   -  clblasInvalidMemObject if any of  iMax  X or  scratchBuff object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if the context, the passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if the context, the passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup iAMAX
-     * </pre>
      */
     public static int clblasiSamax(
         long N, 
@@ -3177,42 +2927,37 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_isamax.c
      * Example of how to use the @ref clblasiSamax function.
-     * </pre>
      */
     /**
-     * <pre>
-     * index of max absolute value in a double array
+     * index of max absolute value in a double array.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) iMax         Buffer object storing the index of first absolute max.
+     * @param N (in)             Number of elements in vector  X.
+     * @param iMax (out)         Buffer object storing the index of first absolute max.
      *                          The index will be of type unsigned int
-     * @param (in) offiMax       Offset for storing index in the buffer iMax
+     * @param offiMax (in)       Offset for storing index in the buffer iMax
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temprory cl_mem object to store intermediate results
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temprory cl_mem object to store intermediate results
                                 It should be able to hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasiSamax() function otherwise.
      *
-     * @ingroup iAMAX
-     * </pre>
      */
     public static int clblasiDamax(
         long N, 
@@ -3246,34 +2991,31 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * index of max absolute value in a complex float array
+     * index of max absolute value in a complex float array.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) iMax         Buffer object storing the index of first absolute max.
+     * @param N (in)             Number of elements in vector  X.
+     * @param iMax (out)         Buffer object storing the index of first absolute max.
      *                          The index will be of type unsigned int
-     * @param (in) offiMax       Offset for storing index in the buffer iMax
+     * @param offiMax (in)       Offset for storing index in the buffer iMax
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temprory cl_mem object to store intermediate results
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temprory cl_mem object to store intermediate results
                                 It should be able to hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasiSamax() function otherwise.
      *
-     * @ingroup iAMAX
-     * </pre>
      */
     public static int clblasiCamax(
         long N, 
@@ -3307,37 +3049,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * index of max absolute value in a complex double array
+     * index of max absolute value in a complex double array.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) iMax         Buffer object storing the index of first absolute max.
+     * @param N (in)             Number of elements in vector  X.
+     * @param iMax (out)         Buffer object storing the index of first absolute max.
      *                          The index will be of type unsigned int
-     * @param (in) offiMax       Offset for storing index in the buffer iMax
+     * @param offiMax (in)       Offset for storing index in the buffer iMax
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temprory cl_mem object to store intermediate results
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temprory cl_mem object to store intermediate results
                                 It should be able to hold minimum of (2*N) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasiSamax() function otherwise.
      *
-     * @ingroup iAMAX
-     * </pre>
      */
     public static int clblasiZamax(
         long N, 
@@ -3370,58 +3109,47 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup ASUM ASUM  - Sum of absolute values
-     * @ingroup BLAS1
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * absolute sum of values of a vector containing float elements
+     * absolute sum of values of a vector containing float elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) asum         Buffer object that will contain the absoule sum value
-     * @param (in) offAsum       Offset to absolute sum in \b asum buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param asum (out)         Buffer object that will contain the absoule sum value
+     * @param offAsum (in)       Offset to absolute sum in  asum buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero, or
      *     - the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if any of \b X or \b asum or \b scratchBuff object is
+     *   -  clblasInvalidMemObject if any of  X or  asum or  scratchBuff object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup ASUM
-     * </pre>
      */
     public static int clblasSasum(
         long N, 
@@ -3455,40 +3183,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sasum.c
      * Example of how to use the @ref clblasSasum function.
-     * </pre>
      */
     /**
-     * <pre>
-     * absolute sum of values of a vector containing double elements
+     * absolute sum of values of a vector containing double elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) asum         Buffer object that will contain the absoulte sum value
-     * @param (in) offAsum       Offset to absoule sum in \b asum buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param asum (out)         Buffer object that will contain the absoulte sum value
+     * @param offAsum (in)       Offset to absoule sum in  asum buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSasum() function otherwise.
      *
-     * @ingroup ASUM
-     * </pre>
      */
     public static int clblasDasum(
         long N, 
@@ -3522,32 +3245,29 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * absolute sum of values of a vector containing float-complex elements
+     * absolute sum of values of a vector containing float-complex elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) asum         Buffer object that will contain the absolute sum value
-     * @param (in) offAsum       Offset to absolute sum in \b asum buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param asum (out)         Buffer object that will contain the absolute sum value
+     * @param offAsum (in)       Offset to absolute sum in  asum buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
+     *   -  clblasSuccess on success;
      *   - the same error codes as the clblasSasum() function otherwise.
      *
-     * @ingroup ASUM
-     * </pre>
      */
     public static int clblasScasum(
         long N, 
@@ -3581,34 +3301,31 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * absolute sum of values of a vector containing double-complex elements
+     * absolute sum of values of a vector containing double-complex elements.
      *
-     * @param (in) N             Number of elements in vector \b X.
-     * @param (out) asum         Buffer object that will contain the absolute sum value
-     * @param (in) offAsum       Offset to absolute sum in \b asum buffer object.
+     * @param N (in)             Number of elements in vector  X.
+     * @param asum (out)         Buffer object that will contain the absolute sum value
+     * @param offAsum (in)       Offset to absolute sum in  asum buffer object.
      *                          Counted in elements.
-     * @param (in) X             Buffer object storing vector \b X.
-     * @param (in) offx          Offset of first element of vector \b X in buffer object.
+     * @param X (in)             Buffer object storing vector  X.
+     * @param offx (in)          Offset of first element of vector  X in buffer object.
      *                          Counted in elements.
-     * @param (in) incx          Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff   Temporary cl_mem scratch buffer object of minimum size N
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incx (in)          Increment for the elements of  X. Must not be zero.
+     * @param scratchBuff (in)   Temporary cl_mem scratch buffer object of minimum size N
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
      *   - the same error codes as the clblasSasum() function otherwise.
      *
-     * @ingroup ASUM
-     * </pre>
      */
     public static int clblasDzasum(
         long N, 
@@ -3641,70 +3358,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup BLAS2 BLAS-2 functions
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * matrix-vector operations.
-     * </pre>
-     */
-    /**@{*/
-    /**@}*/
-    /**
-     * <pre>
-     * @defgroup GEMV GEMV  - General matrix-Vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a general rectangular matrix and
+     * Matrix-vector product with a general rectangular matrix and.
      *        float elements. Extended version.
      *
      * Matrix-vector products:
-     *   - \f$ y \leftarrow \alpha A x + \beta y \f$
-     *   - \f$ y \leftarrow \alpha A^T x + \beta y \f$
+     *   - \f$ y \leftarrow \alpha A x + eta y \f$
+     *   - \f$ y \leftarrow \alpha A^T x + eta y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in
      *                      the buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b x. It cannot be zero.
-     * @param (in) beta      The factor of the vector \b y.
-     * @param (out) y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of  x. It cannot be zero.
+     * @param beta (in)      The factor of the vector  y.
+     * @param y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSgemv() function otherwise.
      *
-     * @ingroup GEMV
-     * </pre>
      */
     public static int clblasSgemv(
         int order, 
@@ -3754,57 +3450,52 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sgemv.c
      * This is an example of how to use the @ref clblasSgemvEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular matrix and
+     * Matrix-vector product with a general rectangular matrix and.
      *        double elements. Extended version.
      *
      * Matrix-vector products:
-     *   - \f$ y \leftarrow \alpha A x + \beta y \f$
-     *   - \f$ y \leftarrow \alpha A^T x + \beta y \f$
+     *   - \f$ y \leftarrow \alpha A x + eta y \f$
+     *   - \f$ y \leftarrow \alpha A^T x + eta y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of \b A in the buffer
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of  A in the buffer
      *                      object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For a detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For a detailed description,
      *                      see clblasSgemv().
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b x. It cannot be zero.
-     * @param (in) beta      The factor of the vector \b y.
-     * @param (out) y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of  x. It cannot be zero.
+     * @param beta (in)      The factor of the vector  y.
+     * @param y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSgemv() function otherwise.
      *
-     * @ingroup GEMV
-     * </pre>
      */
     public static int clblasDgemv(
         int order, 
@@ -3854,49 +3545,46 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular matrix and
+     * Matrix-vector product with a general rectangular matrix and.
      *        float complex elements. Extended version.
      *
      * Matrix-vector products:
-     *   - \f$ y \leftarrow \alpha A x + \beta y \f$
-     *   - \f$ y \leftarrow \alpha A^T x + \beta y \f$
+     *   - \f$ y \leftarrow \alpha A x + eta y \f$
+     *   - \f$ y \leftarrow \alpha A^T x + eta y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in
      *                      the buffer object. Counted in elements
-     * @param (in) lda       Leading dimension of matrix \b A. For a detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For a detailed description,
      *                      see clblasSgemv().
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b x. It cannot be zero.
-     * @param (in) beta      The factor of the vector \b y.
-     * @param (out) y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of  x. It cannot be zero.
+     * @param beta (in)      The factor of the vector  y.
+     * @param y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSgemv() function otherwise.
      *
-     * @ingroup GEMV
-     * </pre>
      */
     public static int clblasCgemv(
         int order, 
@@ -3946,51 +3634,48 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular matrix and
+     * Matrix-vector product with a general rectangular matrix and.
      *        double complex elements. Extended version.
      *
      * Matrix-vector products:
-     *   - \f$ y \leftarrow \alpha A x + \beta y \f$
-     *   - \f$ y \leftarrow \alpha A^T x + \beta y \f$
+     *   - \f$ y \leftarrow \alpha A x + eta y \f$
+     *   - \f$ y \leftarrow \alpha A^T x + eta y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in
      *                      the buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For a detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For a detailed description,
      *                      see clblasSgemv().
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b x. It cannot be zero.
-     * @param (in) beta      The factor of the vector \b y.
-     * @param (out) y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of  x. It cannot be zero.
+     * @param beta (in)      The factor of the vector  y.
+     * @param y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support the
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support the
      *     floating point arithmetic with double precision;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSgemv() function otherwise.
      *
-     * @ingroup GEMV
-     * </pre>
      */
     public static int clblasZgemv(
         int order, 
@@ -4039,56 +3724,45 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYMV SYMV  - Symmetric matrix-Vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a symmetric matrix and float elements.
+     * Matrix-vector product with a symmetric matrix and float elements..
      *
      *
      * Matrix-vector products:
-     * - \f$ y \leftarrow \alpha A x + \beta y \f$
+     * - \f$ y \leftarrow \alpha A x + eta y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in
      *                      the buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot less
-     *                      than \b N.
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot less
+     *                      than  N.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b x. It cannot be zero.
-     * @param (in) beta      The factor of vector \b y.
-     * @param (out) y        Buffer object storing vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  x. It cannot be zero.
+     * @param beta (in)      The factor of vector  y.
+     * @param y (out)        Buffer object storing vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSgemv() function otherwise.
      *
-     * @ingroup SYMV
-     * </pre>
      */
     public static int clblasSsymv(
         int order, 
@@ -4136,55 +3810,50 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_ssymv.c
      * This is an example of how to use the @ref clblasSsymv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a symmetric matrix and double elements.
+     * Matrix-vector product with a symmetric matrix and double elements..
      *
      *
      * Matrix-vector products:
-     * - \f$ y \leftarrow \alpha A x + \beta y \f$
+     * - \f$ y \leftarrow \alpha A x + eta y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in
      *                      the buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot less
-     *                      than \b N.
-     * @param (in) x         Buffer object storing vector \b x.
-     * @param (in) offx      Offset of first element of vector \b x in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot less
+     *                      than  N.
+     * @param x (in)         Buffer object storing vector  x.
+     * @param offx (in)      Offset of first element of vector  x in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b x. It cannot be zero.
-     * @param (in) beta      The factor of vector \b y.
-     * @param (out) y        Buffer object storing vector \b y.
-     * @param (in) offy      Offset of first element of vector \b y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  x. It cannot be zero.
+     * @param beta (in)      The factor of vector  y.
+     * @param y (out)        Buffer object storing vector  y.
+     * @param offy (in)      Offset of first element of vector  y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
-     *   - \b clblasInvalidValue if \b offA exceeds the size of \b A buffer
+     *   -  clblasInvalidValue if  offA exceeds the size of  A buffer
      *     object;
      *   - the same error codes as the clblasSsymv() function otherwise.
      *
-     * @ingroup SYMV
-     * </pre>
      */
     public static int clblasDsymv(
         int order, 
@@ -4231,70 +3900,59 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HEMV HEMV  - Hermitian matrix-vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a hermitian matrix and float-complex elements.
+     * Matrix-vector product with a hermitian matrix and float-complex elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot less
-     *                      than \b N.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot less
+     *                      than  N.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix sizes or the vector sizes along with the increments lead to
      *       accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b A, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  A,  X, or  Y object is
      *     invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HEMV
-     * </pre>
      */
     public static int clblasChemv(
         int order, 
@@ -4342,45 +4000,42 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a hermitian matrix and double-complex elements.
+     * Matrix-vector product with a hermitian matrix and double-complex elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot less
-     *                      than \b N.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot less
+     *                      than  N.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChemv() function otherwise.
      *
-     * @ingroup HEMV
-     * </pre>
      */
     public static int clblasZhemv(
         int order, 
@@ -4428,71 +4083,58 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_zhemv.cpp
      * Example of how to use the @ref clblasZhemv function.
-     * </pre>
      */
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TRMV TRMV  - Triangular matrix vector multiply
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a triangular matrix and
+     * Matrix-vector product with a triangular matrix and.
      * float elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TRMV
-     * </pre>
      */
     public static int clblasStrmv(
         int order, 
@@ -4536,50 +4178,45 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_strmv.c
      * Example of how to use the @ref clblasStrmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a triangular matrix and
+     * Matrix-vector product with a triangular matrix and.
      * double elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasStrmv() function otherwise.
      *
-     * @ingroup TRMV
-     * </pre>
      */
     public static int clblasDtrmv(
         int order, 
@@ -4623,39 +4260,36 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a triangular matrix and
+     * Matrix-vector product with a triangular matrix and.
      * float complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasStrmv() function.
-     * @ingroup TRMV
-     * </pre>
      */
     public static int clblasCtrmv(
         int order, 
@@ -4699,39 +4333,36 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a triangular matrix and
+     * Matrix-vector product with a triangular matrix and.
      * double complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasDtrmv() function.
-     * @ingroup TRMV
-     * </pre>
      */
     public static int clblasZtrmv(
         int order, 
@@ -4774,63 +4405,52 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TRSV TRSV  - Triangular matrix vector Solve
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * solving triangular matrix problems with float elements.
+     * solving triangular matrix problems with float elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TRSV
-     * </pre>
      */
     public static int clblasStrsv(
         int order, 
@@ -4872,47 +4492,42 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_strsv.c
      * Example of how to use the @ref clblasStrsv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * solving triangular matrix problems with double elements.
+     * solving triangular matrix problems with double elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasStrsv() function otherwise.
      *
-     * @ingroup TRSV
-     * </pre>
      */
     public static int clblasDtrsv(
         int order, 
@@ -4954,37 +4569,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular matrix problems with float-complex elements.
+     * solving triangular matrix problems with float-complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasStrsv() function.
      *
-     * @ingroup TRSV
-     * </pre>
      */
     public static int clblasCtrsv(
         int order, 
@@ -5026,37 +4638,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular matrix problems with double-complex elements.
+     * solving triangular matrix problems with double-complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than \b N
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than  N
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasDtrsv() function.
      *
-     * @ingroup TRSV
-     * </pre>
      */
     public static int clblasZtrsv(
         int order, 
@@ -5097,71 +4706,60 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup GER GER   - General matrix rank 1 operation
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * vector-vector product with float elements and
+     * vector-vector product with float elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b M, \b N or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  M,  N or
+     *     - either  incx or  incy is zero, or
      *     - a leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if A, X, or Y object is invalid,
+     *   -  clblasInvalidMemObject if A, X, or Y object is invalid,
      *     or an image object rather than the buffer one;
-     *   - \b clblasOutOfResources if you use image-based function implementation
+     *   -  clblasOutOfResources if you use image-based function implementation
      *     and no suitable scratch image available;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup GER
-     * </pre>
      */
     public static int clblasSger(
         int order, 
@@ -5207,52 +4805,47 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sger.c
      * Example of how to use the @ref clblasSger function.
-     * </pre>
      */
     /**
-     * <pre>
-     * vector-vector product with double elements and
+     * vector-vector product with double elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSger() function otherwise.
      *
-     * @ingroup GER
-     * </pre>
      */
     public static int clblasDger(
         int order, 
@@ -5297,71 +4890,60 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup GERU GERU  - General matrix rank 1 operation
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * vector-vector product with float complex elements and
+     * vector-vector product with float complex elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b M, \b N or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  M,  N or
+     *     - either  incx or  incy is zero, or
      *     - a leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if A, X, or Y object is invalid,
+     *   -  clblasInvalidMemObject if A, X, or Y object is invalid,
      *     or an image object rather than the buffer one;
-     *   - \b clblasOutOfResources if you use image-based function implementation
+     *   -  clblasOutOfResources if you use image-based function implementation
      *     and no suitable scratch image available;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup GERU
-     * </pre>
      */
     public static int clblasCgeru(
         int order, 
@@ -5407,46 +4989,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * vector-vector product with double complex elements and
+     * vector-vector product with double complex elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A          Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A      (out)   Buffer object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCgeru() function otherwise.
      *
-     * @ingroup GERU
-     * </pre>
      */
     public static int clblasZgeru(
         int order, 
@@ -5491,71 +5070,60 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup GERC GERC  - General matrix rank 1 operation
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * vector-vector product with float complex elements and
+     * vector-vector product with float complex elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b M, \b N or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  M,  N or
+     *     - either  incx or  incy is zero, or
      *     - a leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if A, X, or Y object is invalid,
+     *   -  clblasInvalidMemObject if A, X, or Y object is invalid,
      *     or an image object rather than the buffer one;
-     *   - \b clblasOutOfResources if you use image-based function implementation
+     *   -  clblasOutOfResources if you use image-based function implementation
      *     and no suitable scratch image available;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup GERC
-     * </pre>
      */
     public static int clblasCgerc(
         int order, 
@@ -5601,46 +5169,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * vector-vector product with double complex elements and
+     * vector-vector product with double complex elements and.
      * performs the rank 1 operation A
      *
      * Vector-vector products:
      *   - \f$ A \leftarrow \alpha X Y^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     specifies the scalar alpha.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A. On exit, A is
+     * @param order (in)     Row/column order.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     specifies the scalar alpha.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A. On exit, A is
      *                      overwritten by the updated matrix.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCgerc() function otherwise.
      *
-     * @ingroup GERC
-     * </pre>
      */
     public static int clblasZgerc(
         int order, 
@@ -5685,66 +5250,52 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYR SYR   - Symmetric rank 1 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * symmetric rank 1 update operations.
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Symmetric rank 1 operation with a general triangular matrix and
+     * Symmetric rank 1 operation with a general triangular matrix and.
      * float elements.
      *
      * Symmetric rank 1 operation:
      *   - \f$ A \leftarrow \alpha x x^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of first element of matrix \b A in buffer object.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A.
+     * @param offa (in)      Offset of first element of matrix  A in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A, \b X object is
+     *   -  clblasInvalidMemObject if either  A,  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SYR
-     * </pre>
      */
     public static int clblasSsyr(
         int order, 
@@ -5784,40 +5335,37 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Symmetric rank 1 operation with a general triangular matrix and
+     * Symmetric rank 1 operation with a general triangular matrix and.
      * double elements.
      *
      * Symmetric rank 1 operation:
      *   - \f$ A \leftarrow \alpha x x^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of first element of matrix \b A in buffer object.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A.
+     * @param offa (in)      Offset of first element of matrix  A in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSsyr() function otherwise.
      *
-     * @ingroup SYR
-     * </pre>
      */
     public static int clblasDsyr(
         int order, 
@@ -5856,66 +5404,52 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HER HER   - Hermitian rank 1 operation
-     *
-     * The Level 2 Basic Linear Algebra Subprogram functions that perform
-     * hermitian rank 1 operations.
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * hermitian rank 1 operation with a general triangular matrix and
+     * hermitian rank 1 operation with a general triangular matrix and.
      * float-complex elements.
      *
      * hermitian rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A (a scalar float value)
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A (a scalar float value)
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A, \b X object is
+     *   -  clblasInvalidMemObject if either  A,  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HER
-     * </pre>
      */
     public static int clblasCher(
         int order, 
@@ -5955,46 +5489,41 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_cher.c
      * Example of how to use the @ref clblasCher function.
-     * </pre>
      */
     /**
-     * <pre>
-     * hermitian rank 1 operation with a general triangular matrix and
+     * hermitian rank 1 operation with a general triangular matrix and.
      * double-complex elements.
      *
      * hermitian rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A (a scalar double value)
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A (a scalar double value)
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCher() function otherwise.
      *
-     * @ingroup HER
-     * </pre>
      */
     public static int clblasZher(
         int order, 
@@ -6033,69 +5562,55 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYR2 SYR2  - Symmetric rank 2 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * symmetric rank 2 update operations.
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Symmetric rank 2 operation with a general triangular matrix and
+     * Symmetric rank 2 operation with a general triangular matrix and.
      * float elements.
      *
      * Symmetric rank 2 operation:
      *   - \f$ A \leftarrow \alpha x y^T + \alpha y x^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of first element of matrix \b A in buffer object.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A.
+     * @param offa (in)      Offset of first element of matrix  A in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  A,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SYR2
-     * </pre>
      */
     public static int clblasSsyr2(
         int order, 
@@ -6141,57 +5656,54 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Symmetric rank 2 operation with a general triangular matrix and
+     * Symmetric rank 2 operation with a general triangular matrix and.
      * double elements.
      *
      * Symmetric rank 2 operation:
      *   - \f$ A \leftarrow \alpha x y^T + \alpha y x^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of first element of matrix \b A in buffer object.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A (out)       Buffer object storing matrix  A.
+     * @param offa (in)      Offset of first element of matrix  A in buffer object.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  A,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SYR2
-     * </pre>
      */
     public static int clblasDsyr2(
         int order, 
@@ -6236,69 +5748,55 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HER2 HER2  - Hermitian rank 2 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * hermitian rank 2 update operations.
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Hermitian rank 2 operation with a general triangular matrix and
+     * Hermitian rank 2 operation with a general triangular matrix and.
      * float-compelx elements.
      *
      * Hermitian rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^H + \overline{ \alpha } Y X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  A,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HER2
-     * </pre>
      */
     public static int clblasCher2(
         int order, 
@@ -6344,43 +5842,40 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-    * Hermitian rank 2 operation with a general triangular matrix and
+    * Hermitian rank 2 operation with a general triangular matrix and.
      * double-compelx elements.
      *
      * Hermitian rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^H + \overline{ \alpha } Y X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) A       Buffer object storing matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param A     Buffer (out) object storing matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCher2() function otherwise.
      *
-     * @ingroup HER2
-     * </pre>
      */
     public static int clblasZher2(
         int order, 
@@ -6426,68 +5921,55 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_zher2.c
      * Example of how to use the @ref clblasZher2 function.
-     * </pre>
      */
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TPMV TPMV  - Triangular packed matrix-vector multiply
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a packed triangular matrix and
+     * Matrix-vector product with a packed triangular matrix and.
      * float elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b AP is to be transposed.
-     * @param (in) diag             Specify whether matrix \b AP is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b A.
-     * @param (in) AP               Buffer object storing matrix \b AP in packed format.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b AP.
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order (in)     Row/column order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  AP is to be transposed.
+     * @param diag              Specify (in) whether matrix  AP is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  A.
+     * @param AP                Buffer (in) object storing matrix  AP in packed format.
+     * @param offa              Offset (in) in number of elements for first element in matrix  AP.
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero
-     *   - \b clblasInvalidMemObject if either \b AP or \b X object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero
+     *   -  clblasInvalidMemObject if either  AP or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TPMV
-     * </pre>
      */
     public static int clblasStpmv(
         int order, 
@@ -6529,48 +6011,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_stpmv.c
      * Example of how to use the @ref clblasStpmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a packed triangular matrix and
+     * Matrix-vector product with a packed triangular matrix and.
      * double elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b AP is to be transposed.
-     * @param (in) diag             Specify whether matrix \b AP is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b AP.
-     * @param (in) AP               Buffer object storing matrix \b AP in packed format.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b AP.
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order (in)     Row/column order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  AP is to be transposed.
+     * @param diag              Specify (in) whether matrix  AP is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  AP.
+     * @param AP                Buffer (in) object storing matrix  AP in packed format.
+     * @param offa              Offset (in) in number of elements for first element in matrix  AP.
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasStpmv() function otherwise.
      *
-     * @ingroup TPMV
-     * </pre>
      */
     public static int clblasDtpmv(
         int order, 
@@ -6612,37 +6089,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a packed triangular matrix and
+     * Matrix-vector product with a packed triangular matrix and.
      * float-complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b AP is to be transposed.
-     * @param (in) diag             Specify whether matrix \b AP is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b AP.
-     * @param (in) AP               Buffer object storing matrix \b AP in packed format.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b AP.
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order (in)     Row/column order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  AP is to be transposed.
+     * @param diag              Specify (in) whether matrix  AP is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  AP.
+     * @param AP                Buffer (in) object storing matrix  AP in packed format.
+     * @param offa              Offset (in) in number of elements for first element in matrix  AP.
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasStpmv() function.
-     * @ingroup TPMV
-     * </pre>
      */
     public static int clblasCtpmv(
         int order, 
@@ -6684,37 +6158,34 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a packed triangular matrix and
+     * Matrix-vector product with a packed triangular matrix and.
      * double-complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b AP is to be transposed.
-     * @param (in) diag             Specify whether matrix \b AP is unit triangular.
-     * @param (in) N                    Number of rows/columns in matrix \b AP.
-     * @param (in) AP               Buffer object storing matrix \b AP in packed format.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b AP.
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order (in)     Row/column order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  AP is to be transposed.
+     * @param diag              Specify (in) whether matrix  AP is unit triangular.
+     * @param N                 Number (in) of rows/columns in matrix  AP.
+     * @param AP                Buffer (in) object storing matrix  AP in packed format.
+     * @param offa              Offset (in) in number of elements for first element in matrix  AP.
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasDtpmv() function.
-     * @ingroup TPMV
-     * </pre>
      */
     public static int clblasZtpmv(
         int order, 
@@ -6755,61 +6226,50 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TPSV TPSV  - Triangular packed matrix vector solve
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * solving triangular packed matrix problems with float elements.
+     * solving triangular packed matrix problems with float elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo              The triangle in matrix being referenced.
-     * @param (in) trans             How matrix \b A is to be transposed.
-     * @param (in) diag              Specify whether matrix \b A is unit triangular.
-     * @param (in) N                 Number of rows/columns in matrix \b A.
-     * @param (in) A                 Buffer object storing matrix in packed format.\b A.
-     * @param (in) offa              Offset in number of elements for first element in matrix \b A.
-     * @param (out) X                Buffer object storing vector \b X.
-     * @param (in) offx              Offset in number of elements for first element in vector \b X.
-     * @param (in) incx              Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)              The triangle in matrix being referenced.
+     * @param trans (in)             How matrix  A is to be transposed.
+     * @param diag (in)              Specify whether matrix  A is unit triangular.
+     * @param N (in)                 Number of rows/columns in matrix  A.
+     * @param A (in)                 Buffer object storing matrix in packed format. A.
+     * @param offa (in)              Offset in number of elements for first element in matrix  A.
+     * @param X (out)                Buffer object storing vector  X.
+     * @param offx (in)              Offset in number of elements for first element in vector  X.
+     * @param incx (in)              Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TPSV
-     * </pre>
      */
     public static int clblasStpsv(
         int order, 
@@ -6849,58 +6309,53 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_stpsv.c
      * Example of how to use the @ref clblasStpsv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * solving triangular packed matrix problems with double elements.
+     * solving triangular packed matrix problems with double elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo              The triangle in matrix being referenced.
-     * @param (in) trans             How matrix \b A is to be transposed.
-     * @param (in) diag              Specify whether matrix \b A is unit triangular.
-     * @param (in) N                 Number of rows/columns in matrix \b A.
-     * @param (in) A                 Buffer object storing matrix in packed format.\b A.
-     * @param (in) offa              Offset in number of elements for first element in matrix \b A.
-     * @param (out) X                Buffer object storing vector \b X.
-     * @param (in) offx              Offset in number of elements for first element in vector \b X.
-     * @param (in) incx              Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)              The triangle in matrix being referenced.
+     * @param trans (in)             How matrix  A is to be transposed.
+     * @param diag (in)              Specify whether matrix  A is unit triangular.
+     * @param N (in)                 Number of rows/columns in matrix  A.
+     * @param A (in)                 Buffer object storing matrix in packed format. A.
+     * @param offa (in)              Offset in number of elements for first element in matrix  A.
+     * @param X (out)                Buffer object storing vector  X.
+     * @param offx (in)              Offset in number of elements for first element in vector  X.
+     * @param incx (in)              Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TPSV
-     * </pre>
      */
     public static int clblasDtpsv(
         int order, 
@@ -6940,52 +6395,49 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular packed matrix problems with float complex elements.
+     * solving triangular packed matrix problems with float complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo              The triangle in matrix being referenced.
-     * @param (in) trans             How matrix \b A is to be transposed.
-     * @param (in) diag              Specify whether matrix \b A is unit triangular.
-     * @param (in) N                 Number of rows/columns in matrix \b A.
-     * @param (in) A                 Buffer object storing matrix in packed format.\b A.
-     * @param (in) offa              Offset in number of elements for first element in matrix \b A.
-     * @param (out) X                Buffer object storing vector \b X.
-     * @param (in) offx              Offset in number of elements for first element in vector \b X.
-     * @param (in) incx              Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)              The triangle in matrix being referenced.
+     * @param trans (in)             How matrix  A is to be transposed.
+     * @param diag (in)              Specify whether matrix  A is unit triangular.
+     * @param N (in)                 Number of rows/columns in matrix  A.
+     * @param A (in)                 Buffer object storing matrix in packed format. A.
+     * @param offa (in)              Offset in number of elements for first element in matrix  A.
+     * @param X (out)                Buffer object storing vector  X.
+     * @param offx (in)              Offset in number of elements for first element in vector  X.
+     * @param incx (in)              Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TPSV
-     * </pre>
      */
     public static int clblasCtpsv(
         int order, 
@@ -7025,52 +6477,49 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular packed matrix problems with double complex elements.
+     * solving triangular packed matrix problems with double complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo              The triangle in matrix being referenced.
-     * @param (in) trans             How matrix \b A is to be transposed.
-     * @param (in) diag              Specify whether matrix \b A is unit triangular.
-     * @param (in) N                 Number of rows/columns in matrix \b A.
-     * @param (in) A                 Buffer object storing matrix in packed format.\b A.
-     * @param (in) offa              Offset in number of elements for first element in matrix \b A.
-     * @param (out) X                Buffer object storing vector \b X.
-     * @param (in) offx              Offset in number of elements for first element in vector \b X.
-     * @param (in) incx              Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)              The triangle in matrix being referenced.
+     * @param trans (in)             How matrix  A is to be transposed.
+     * @param diag (in)              Specify whether matrix  A is unit triangular.
+     * @param N (in)                 Number of rows/columns in matrix  A.
+     * @param A (in)                 Buffer object storing matrix in packed format. A.
+     * @param offa (in)              Offset in number of elements for first element in matrix  A.
+     * @param X (out)                Buffer object storing vector  X.
+     * @param offx (in)              Offset in number of elements for first element in vector  X.
+     * @param incx (in)              Increment for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TPSV
-     * </pre>
      */
     public static int clblasZtpsv(
         int order, 
@@ -7109,67 +6558,56 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SPMV SPMV  - Symmetric packed matrix vector multiply
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a symmetric packed-matrix and float elements.
+     * Matrix-vector product with a symmetric packed-matrix and float elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b AP.
-     * @param (in) alpha     The factor of matrix \b AP.
-     * @param (in) AP        Buffer object storing matrix \b AP.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b AP.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  AP.
+     * @param alpha (in)     The factor of matrix  AP.
+     * @param AP (in)        Buffer object storing matrix  AP.
+     * @param offa      Offset (in) in number of elements for first element in matrix  AP.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the matrix sizes or the vector sizes along with the increments lead to
      *       accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b AP, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  AP,  X, or  Y object is
      *     invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SPMV
-     * </pre>
      */
     public static int clblasSspmv(
         int order, 
@@ -7215,49 +6653,44 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sspmv.c
      * This is an example of how to use the @ref clblasSspmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a symmetric packed-matrix and double elements.
+     * Matrix-vector product with a symmetric packed-matrix and double elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b AP.
-     * @param (in) alpha     The factor of matrix \b AP.
-     * @param (in) AP        Buffer object storing matrix \b AP.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b AP.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  AP.
+     * @param alpha (in)     The factor of matrix  AP.
+     * @param AP (in)        Buffer object storing matrix  AP.
+     * @param offa      Offset (in) in number of elements for first element in matrix  AP.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSspmv() function otherwise.
      *
-     * @ingroup SPMV
-     * </pre>
      */
     public static int clblasDspmv(
         int order, 
@@ -7302,67 +6735,56 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HPMV HPMV  - Hermitian packed matrix-vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a packed hermitian matrix and float-complex elements.
+     * Matrix-vector product with a packed hermitian matrix and float-complex elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b AP.
-     * @param (in) alpha     The factor of matrix \b AP.
-     * @param (in) AP        Buffer object storing packed matrix \b AP.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b AP.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  AP.
+     * @param alpha (in)     The factor of matrix  AP.
+     * @param AP (in)        Buffer object storing packed matrix  AP.
+     * @param offa      Offset (in) in number of elements for first element in matrix  AP.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx or  incy is zero, or
      *     - the matrix sizes or the vector sizes along with the increments lead to
      *       accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b AP, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  AP,  X, or  Y object is
      *     invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HPMV
-     * </pre>
      */
     public static int clblasChpmv(
         int order, 
@@ -7408,49 +6830,44 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_chpmv.c
      * This is an example of how to use the @ref clblasChpmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a packed hermitian matrix and double-complex elements.
+     * Matrix-vector product with a packed hermitian matrix and double-complex elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in matrix \b AP.
-     * @param (in) alpha     The factor of matrix \b AP.
-     * @param (in) AP        Buffer object storing packed matrix \b AP.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b AP.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in matrix  AP.
+     * @param alpha (in)     The factor of matrix  AP.
+     * @param AP (in)        Buffer object storing packed matrix  AP.
+     * @param offa      Offset (in) in number of elements for first element in matrix  AP.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChpmv() function otherwise.
      *
-     * @ingroup HPMV
-     * </pre>
      */
     public static int clblasZhpmv(
         int order, 
@@ -7495,63 +6912,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SPR SPR   - Symmetric packed matrix rank 1 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * symmetric rank 1 update operations on packed matrix
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Symmetric rank 1 operation with a general triangular packed-matrix and
+     * Symmetric rank 1 operation with a general triangular packed-matrix and.
      * float elements.
      *
      * Symmetric rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset of first element of matrix \b AP in buffer object.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param AP (out)      Buffer object storing packed-matrix  AP.
+     * @param offa (in)      Offset of first element of matrix  AP in buffer object.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero
-     *   - \b clblasInvalidMemObject if either \b AP, \b X object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero
+     *   -  clblasInvalidMemObject if either  AP,  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SPR
-     * </pre>
      */
     public static int clblasSspr(
         int order, 
@@ -7589,44 +6992,39 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sspr.c
      * Example of how to use the @ref clblasSspr function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Symmetric rank 1 operation with a general triangular packed-matrix and
+     * Symmetric rank 1 operation with a general triangular packed-matrix and.
      * double elements.
      *
      * Symmetric rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset of first element of matrix \b AP in buffer object.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param AP (out)      Buffer object storing packed-matrix  AP.
+     * @param offa (in)      Offset of first element of matrix  AP in buffer object.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSspr() function otherwise.
      *
-     * @ingroup SPR
-     * </pre>
      */
     public static int clblasDspr(
         int order, 
@@ -7663,63 +7061,49 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HPR HPR   - Hermitian packed matrix rank 1 update
-     *
-     * The Level 2 Basic Linear Algebra Subprogram functions that perform
-     * hermitian rank 1 operations on packed matrix
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * hermitian rank 1 operation with a general triangular packed-matrix and
+     * hermitian rank 1 operation with a general triangular packed-matrix and.
      * float-complex elements.
      *
      * hermitian rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A (a scalar float value)
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) AP      Buffer object storing matrix \b AP.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b AP.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A (a scalar float value)
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param AP (out)      Buffer object storing matrix  AP.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  AP.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b N is zero, or
-     *     - either \b incx is zero
-     *   - \b clblasInvalidMemObject if either \b AP, \b X object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  N is zero, or
+     *     - either  incx is zero
+     *   -  clblasInvalidMemObject if either  AP,  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HPR
-     * </pre>
      */
     public static int clblasChpr(
         int order, 
@@ -7757,44 +7141,39 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_chpr.c
      * Example of how to use the @ref clblasChpr function.
-     * </pre>
      */
     /**
-     * <pre>
-     * hermitian rank 1 operation with a general triangular packed-matrix and
+     * hermitian rank 1 operation with a general triangular packed-matrix and.
      * double-complex elements.
      *
      * hermitian rank 1 operation:
      *   - \f$ A \leftarrow \alpha X X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A (a scalar float value)
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (out) AP      Buffer object storing matrix \b AP.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b AP.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A (a scalar float value)
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param AP (out)      Buffer object storing matrix  AP.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  AP.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChpr() function otherwise.
      *
-     * @ingroup HPR
-     * </pre>
      */
     public static int clblasZhpr(
         int order, 
@@ -7831,66 +7210,52 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SPR2 SPR2  - Symmetric packed matrix rank 2 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * symmetric rank 2 update operations on packed matrices
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Symmetric rank 2 operation with a general triangular packed-matrix and
+     * Symmetric rank 2 operation with a general triangular packed-matrix and.
      * float elements.
      *
      * Symmetric rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^T + \alpha Y X^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset of first element of matrix \b AP in buffer object.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param AP        Buffer (out) object storing packed-matrix  AP.
+     * @param offa (in)      Offset of first element of matrix  AP in buffer object.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N is zero, or
-     *     - either \b incx or \b incy is zero
-     *   - \b clblasInvalidMemObject if either \b AP, \b X, or \b Y object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N is zero, or
+     *     - either  incx or  incy is zero
+     *   -  clblasInvalidMemObject if either  AP,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SPR2
-     * </pre>
      */
     public static int clblasSspr2(
         int order, 
@@ -7934,47 +7299,42 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sspr2.c
      * Example of how to use the @ref clblasSspr2 function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Symmetric rank 2 operation with a general triangular packed-matrix and
+     * Symmetric rank 2 operation with a general triangular packed-matrix and.
      * double elements.
      *
      * Symmetric rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^T + \alpha Y X^T + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset of first element of matrix \b AP in buffer object.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param AP        Buffer (out) object storing packed-matrix  AP.
+     * @param offa (in)      Offset of first element of matrix  AP in buffer object.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSspr2() function otherwise.
      *
-     * @ingroup SPR2
-     * </pre>
      */
     public static int clblasDspr2(
         int order, 
@@ -8017,66 +7377,52 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HPR2 HPR2  - Hermitian packed matrix rank 2 update
-     *
-     * The Level 2 Basic Linear Algebra Subprograms are functions that perform
-     * hermitian rank 2 update operations on packed matrices
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Hermitian rank 2 operation with a general triangular packed-matrix and
+     * Hermitian rank 2 operation with a general triangular packed-matrix and.
      * float-compelx elements.
      *
      * Hermitian rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^H + \conjg( alpha ) Y X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b AP.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param AP        Buffer (out) object storing packed-matrix  AP.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  AP.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N is zero, or
-     *     - either \b incx or \b incy is zero
-     *   - \b clblasInvalidMemObject if either \b AP, \b X, or \b Y object is
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N is zero, or
+     *     - either  incx or  incy is zero
+     *   -  clblasInvalidMemObject if either  AP,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HPR2
-     * </pre>
      */
     public static int clblasChpr2(
         int order, 
@@ -8120,41 +7466,38 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Hermitian rank 2 operation with a general triangular packed-matrix and
+     * Hermitian rank 2 operation with a general triangular packed-matrix and.
      * double-compelx elements.
      *
      * Hermitian rank 2 operation:
      *   - \f$ A \leftarrow \alpha X Y^H + \conjg( alpha ) Y X^H + A \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of columns in matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset in number of elements for the first element in vector \b X.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) Y         Buffer object storing vector \b Y.
-     * @param (in) offy      Offset in number of elements for the first element in vector \b Y.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (out) AP      Buffer object storing packed-matrix \b AP.
-     * @param (in) offa      Offset in number of elements for the first element in matrix \b AP.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order (in)     Row/column order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of columns in matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset in number of elements for the first element in vector  X.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param Y (in)         Buffer object storing vector  Y.
+     * @param offy (in)      Offset in number of elements for the first element in vector  Y.
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param AP        Buffer (out) object storing packed-matrix  AP.
+     * @param offa (in)      Offset in number of elements for the first element in matrix  AP.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChpr2() function otherwise.
      *
-     * @ingroup HPR2
-     * </pre>
      */
     public static int clblasZhpr2(
         int order, 
@@ -8198,82 +7541,69 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_zhpr2.c
      * Example of how to use the @ref clblasZhpr2 function.
-     * </pre>
      */
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup GBMV GBMV  - General banded matrix-vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a general rectangular banded matrix and
+     * Matrix-vector product with a general rectangular banded matrix and.
      * float elements.
      *
      * Matrix-vector products:
-     *   - \f$ Y \leftarrow \alpha A X + \beta Y \f$
-     *   - \f$ Y \leftarrow \alpha A^T X + \beta Y \f$
+     *   - \f$ Y \leftarrow \alpha A X + eta Y \f$
+     *   - \f$ Y \leftarrow \alpha A^T X + eta Y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) trans     How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in banded matrix \b A.
-     * @param (in) N         Number of columns in banded matrix \b A.
-     * @param (in) KL        Number of sub-diagonals in banded matrix \b A.
-     * @param (in) KU        Number of super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of banded matrix \b A.
-     * @param (in) A         Buffer object storing banded matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in banded matrix \b A.
-     * @param (in) lda       Leading dimension of banded matrix \b A. It cannot be less
-     *                      than ( \b KL + \b KU + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/column order.
+     * @param trans (in)     How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in banded matrix  A.
+     * @param N (in)         Number of columns in banded matrix  A.
+     * @param KL (in)        Number of sub-diagonals in banded matrix  A.
+     * @param KU (in)        Number of super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of banded matrix  A.
+     * @param A (in)         Buffer object storing banded matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in banded matrix  A.
+     * @param lda (in)       Leading dimension of banded matrix  A. It cannot be less
+     *                      than (  KL +  KU + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) beta      The factor of the vector \b Y.
-     * @param (out) Y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param beta (in)      The factor of the vector  Y.
+     * @param Y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b M or \b N is zero, or
-     *     - KL is greater than \b M - 1, or
-     *     - KU is greater than \b N - 1, or
-     *     - either \b incx or \b incy is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  M or  N is zero, or
+     *     - KL is greater than  M - 1, or
+     *     - KU is greater than  N - 1, or
+     *     - either  incx or  incy is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix size or the vector sizes along with the increments lead to
      *       accessing outside of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b A, \b X, or \b Y object is
+     *   -  clblasInvalidMemObject if either  A,  X, or  Y object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup GBMV
-     * </pre>
      */
     public static int clblasSgbmv(
         int order, 
@@ -8327,56 +7657,51 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sgbmv.c
      * Example of how to use the @ref clblasSgbmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular banded matrix and
+     * Matrix-vector product with a general rectangular banded matrix and.
      * double elements.
      *
      * Matrix-vector products:
-     *   - \f$ Y \leftarrow \alpha A X + \beta Y \f$
-     *   - \f$ Y \leftarrow \alpha A^T X + \beta Y \f$
+     *   - \f$ Y \leftarrow \alpha A X + eta Y \f$
+     *   - \f$ Y \leftarrow \alpha A^T X + eta Y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) trans     How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in banded matrix \b A.
-     * @param (in) N         Number of columns in banded matrix \b A.
-     * @param (in) KL        Number of sub-diagonals in banded matrix \b A.
-     * @param (in) KU        Number of super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of banded matrix \b A.
-     * @param (in) A         Buffer object storing banded matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in banded matrix \b A.
-     * @param (in) lda       Leading dimension of banded matrix \b A. It cannot be less
-     *                      than ( \b KL + \b KU + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/column order.
+     * @param trans (in)     How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in banded matrix  A.
+     * @param N (in)         Number of columns in banded matrix  A.
+     * @param KL (in)        Number of sub-diagonals in banded matrix  A.
+     * @param KU (in)        Number of super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of banded matrix  A.
+     * @param A (in)         Buffer object storing banded matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in banded matrix  A.
+     * @param lda (in)       Leading dimension of banded matrix  A. It cannot be less
+     *                      than (  KL +  KU + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) beta      The factor of the vector \b Y.
-     * @param (out) Y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param beta (in)      The factor of the vector  Y.
+     * @param Y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSgbmv() function otherwise.
      *
-     * @ingroup GBMV
-     * </pre>
      */
     public static int clblasDgbmv(
         int order, 
@@ -8430,46 +7755,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular banded matrix and
+     * Matrix-vector product with a general rectangular banded matrix and.
      * float-complex elements.
      *
      * Matrix-vector products:
-     *   - \f$ Y \leftarrow \alpha A X + \beta Y \f$
-     *   - \f$ Y \leftarrow \alpha A^T X + \beta Y \f$
+     *   - \f$ Y \leftarrow \alpha A X + eta Y \f$
+     *   - \f$ Y \leftarrow \alpha A^T X + eta Y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) trans     How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in banded matrix \b A.
-     * @param (in) N         Number of columns in banded matrix \b A.
-     * @param (in) KL        Number of sub-diagonals in banded matrix \b A.
-     * @param (in) KU        Number of super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of banded matrix \b A.
-     * @param (in) A         Buffer object storing banded matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in banded matrix \b A.
-     * @param (in) lda       Leading dimension of banded matrix \b A. It cannot be less
-     *                      than ( \b KL + \b KU + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/column order.
+     * @param trans (in)     How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in banded matrix  A.
+     * @param N (in)         Number of columns in banded matrix  A.
+     * @param KL (in)        Number of sub-diagonals in banded matrix  A.
+     * @param KU (in)        Number of super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of banded matrix  A.
+     * @param A (in)         Buffer object storing banded matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in banded matrix  A.
+     * @param lda (in)       Leading dimension of banded matrix  A. It cannot be less
+     *                      than (  KL +  KU + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) beta      The factor of the vector \b Y.
-     * @param (out) Y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param beta (in)      The factor of the vector  Y.
+     * @param Y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasSgbmv() function.
      *
-     * @ingroup GBMV
-     * </pre>
      */
     public static int clblasCgbmv(
         int order, 
@@ -8523,46 +7845,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a general rectangular banded matrix and
+     * Matrix-vector product with a general rectangular banded matrix and.
      * double-complex elements.
      *
      * Matrix-vector products:
-     *   - \f$ Y \leftarrow \alpha A X + \beta Y \f$
-     *   - \f$ Y \leftarrow \alpha A^T X + \beta Y \f$
+     *   - \f$ Y \leftarrow \alpha A X + eta Y \f$
+     *   - \f$ Y \leftarrow \alpha A^T X + eta Y \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) trans     How matrix \b A is to be transposed.
-     * @param (in) M         Number of rows in banded matrix \b A.
-     * @param (in) N         Number of columns in banded matrix \b A.
-     * @param (in) KL        Number of sub-diagonals in banded matrix \b A.
-     * @param (in) KU        Number of super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of banded matrix \b A.
-     * @param (in) A         Buffer object storing banded matrix \b A.
-     * @param (in) offa      Offset in number of elements for the first element in banded matrix \b A.
-     * @param (in) lda       Leading dimension of banded matrix \b A. It cannot be less
-     *                      than ( \b KL + \b KU + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/column order.
+     * @param trans (in)     How matrix  A is to be transposed.
+     * @param M (in)         Number of rows in banded matrix  A.
+     * @param N (in)         Number of columns in banded matrix  A.
+     * @param KL (in)        Number of sub-diagonals in banded matrix  A.
+     * @param KU (in)        Number of super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of banded matrix  A.
+     * @param A (in)         Buffer object storing banded matrix  A.
+     * @param offa (in)      Offset in number of elements for the first element in banded matrix  A.
+     * @param lda (in)       Leading dimension of banded matrix  A. It cannot be less
+     *                      than (  KL +  KU + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of \b X. Must not be zero.
-     * @param (in) beta      The factor of the vector \b Y.
-     * @param (out) Y        Buffer object storing the vector \b y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of  X. Must not be zero.
+     * @param beta (in)      The factor of the vector  Y.
+     * @param Y (out)        Buffer object storing the vector  y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of \b Y. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of  Y. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasDgbmv() function.
      *
-     * @ingroup GBMV
-     * </pre>
      */
     public static int clblasZgbmv(
         int order, 
@@ -8615,68 +7934,57 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TBMV TBMV  - Triangular banded matrix vector multiply
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a triangular banded matrix and
+     * Matrix-vector product with a triangular banded matrix and.
      * float elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
-     *     - K is greater than \b N - 1
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
+     *     - K is greater than  N - 1
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TBMV
-     * </pre>
      */
     public static int clblasStbmv(
         int order, 
@@ -8722,51 +8030,46 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_stbmv.c
      * Example of how to use the @ref clblasStbmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a triangular banded matrix and
+     * Matrix-vector product with a triangular banded matrix and.
      * double elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasStbmv() function otherwise.
      *
-     * @ingroup TBMV
-     * </pre>
      */
     public static int clblasDtbmv(
         int order, 
@@ -8812,41 +8115,38 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a triangular banded matrix and
+     * Matrix-vector product with a triangular banded matrix and.
      * float-complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
     * @return The same result as the clblasStbmv() function.
      *
-     * @ingroup TBMV
-     * </pre>
      */
     public static int clblasCtbmv(
         int order, 
@@ -8892,41 +8192,38 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-vector product with a triangular banded matrix and
+     * Matrix-vector product with a triangular banded matrix and.
      * double-complex elements.
      *
      * Matrix-vector products:
      *   - \f$ X \leftarrow  A X \f$
      *   - \f$ X \leftarrow  A^T X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) scratchBuff      Temporary cl_mem scratch buffer object which can hold a
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param scratchBuff       Temporary (in) cl_mem scratch buffer object which can hold a
      *                              minimum of (1 + (N-1)*abs(incx)) elements
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
     * @return The same result as the clblasDtbmv() function.
      *
-     * @ingroup TBMV
-     * </pre>
      */
     public static int clblasZtbmv(
         int order, 
@@ -8971,69 +8268,58 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SBMV SBMV  - Symmetric banded matrix-vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a symmetric banded matrix and float elements.
+     * Matrix-vector product with a symmetric banded matrix and float elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in banded matrix \b A.
-     * @param (in) K            Number of sub-diagonals/super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A            Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda      Leading dimension of matrix \b A. It cannot be less
-     *                      than ( \b K + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in banded matrix  A.
+     * @param K         Number (in) of sub-diagonals/super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A         Buffer (in) object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda       Leading (in) dimension of matrix  A. It cannot be less
+     *                      than (  K + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
-     *     - K is greater than \b N - 1
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
+     *     - K is greater than  N - 1
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SBMV
-     * </pre>
      */
     public static int clblasSsbmv(
         int order, 
@@ -9083,52 +8369,47 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_ssbmv.c
      * This is an example of how to use the @ref clblasSsbmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a symmetric banded matrix and double elements.
+     * Matrix-vector product with a symmetric banded matrix and double elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in banded matrix \b A.
-     * @param (in) K            Number of sub-diagonals/super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A            Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda      Leading dimension of matrix \b A. It cannot be less
-     *                      than ( \b K + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in banded matrix  A.
+     * @param K         Number (in) of sub-diagonals/super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A         Buffer (in) object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda       Leading (in) dimension of matrix  A. It cannot be less
+     *                      than (  K + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSsbmv() function otherwise.
      *
-     * @ingroup SBMV
-     * </pre>
      */
     public static int clblasDsbmv(
         int order, 
@@ -9177,69 +8458,58 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HBMV HBMV  - Hermitian banded matrix-vector multiplication
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-vector product with a hermitian banded matrix and float elements.
+     * Matrix-vector product with a hermitian banded matrix and float elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in banded matrix \b A.
-     * @param (in) K            Number of sub-diagonals/super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A            Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda      Leading dimension of matrix \b A. It cannot be less
-     *                      than ( \b K + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in banded matrix  A.
+     * @param K         Number (in) of sub-diagonals/super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A         Buffer (in) object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda       Leading (in) dimension of matrix  A. It cannot be less
+     *                      than (  K + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
-     *     - K is greater than \b N - 1
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
+     *     - K is greater than  N - 1
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HBMV
-     * </pre>
      */
     public static int clblasChbmv(
         int order, 
@@ -9289,52 +8559,47 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_chbmv.c
      * This is an example of how to use the @ref clblasChbmv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-vector product with a hermitian banded matrix and double elements.
+     * Matrix-vector product with a hermitian banded matrix and double elements..
      *
      * Matrix-vector products:
-     * - \f$ Y \leftarrow \alpha A X + \beta Y \f$
+     * - \f$ Y \leftarrow \alpha A X + eta Y \f$
      *
-     * @param (in) order     Row/columns order.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) N         Number of rows and columns in banded matrix \b A.
-     * @param (in) K            Number of sub-diagonals/super-diagonals in banded matrix \b A.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A            Buffer object storing matrix \b A.
-     * @param (in) offa     Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda      Leading dimension of matrix \b A. It cannot be less
-     *                      than ( \b K + 1 )
-     * @param (in) X         Buffer object storing vector \b X.
-     * @param (in) offx      Offset of first element of vector \b X in buffer object.
+     * @param order (in)     Row/columns order.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param N (in)         Number of rows and columns in banded matrix  A.
+     * @param K         Number (in) of sub-diagonals/super-diagonals in banded matrix  A.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A         Buffer (in) object storing matrix  A.
+     * @param offa      Offset (in) in number of elements for first element in matrix  A.
+     * @param lda       Leading (in) dimension of matrix  A. It cannot be less
+     *                      than (  K + 1 )
+     * @param X (in)         Buffer object storing vector  X.
+     * @param offx (in)      Offset of first element of vector  X in buffer object.
      *                      Counted in elements.
-     * @param (in) incx      Increment for the elements of vector \b X. It cannot be zero.
-     * @param (in) beta      The factor of vector \b Y.
-     * @param (out) Y        Buffer object storing vector \b Y.
-     * @param (in) offy      Offset of first element of vector \b Y in buffer object.
+     * @param incx (in)      Increment for the elements of vector  X. It cannot be zero.
+     * @param beta (in)      The factor of vector  Y.
+     * @param Y (out)        Buffer object storing vector  Y.
+     * @param offy (in)      Offset of first element of vector  Y in buffer object.
      *                      Counted in elements.
-     * @param (in) incy      Increment for the elements of vector \b Y. It cannot be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param incy (in)      Increment for the elements of vector  Y. It cannot be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChbmv() function otherwise.
      *
-     * @ingroup HBMV
-     * </pre>
      */
     public static int clblasZhbmv(
         int order, 
@@ -9383,65 +8648,54 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TBSV TBSV  - Solving triangular banded matrix
-     * @ingroup BLAS2
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * solving triangular banded matrix problems with float elements.
+     * solving triangular banded matrix problems with float elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b incx is zero, or
-     *     - K is greater than \b N - 1
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  incx is zero, or
+     *     - K is greater than  N - 1
      *     - the leading dimension is invalid;
-     *   - \b clblasInvalidMemObject if either \b A or \b X object is
+     *   -  clblasInvalidMemObject if either  A or  X object is
      *     Invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs
      *     to was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup TBSV
-     * </pre>
      */
     public static int clblasStbsv(
         int order, 
@@ -9485,48 +8739,43 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_stbsv.c
      * This is an example of how to use the @ref clblasStbsv function.
-     * </pre>
      */
     /**
-     * <pre>
-     * solving triangular banded matrix problems with double elements.
+     * solving triangular banded matrix problems with double elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasStbsv() function otherwise.
      *
-     * @ingroup TBSV
-     * </pre>
      */
     public static int clblasDtbsv(
         int order, 
@@ -9570,38 +8819,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular banded matrix problems with float-complex elements.
+     * solving triangular banded matrix problems with float-complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasStbsv() function.
      *
-     * @ingroup TBSV
-     * </pre>
      */
     public static int clblasCtbsv(
         int order, 
@@ -9645,38 +8891,35 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * solving triangular banded matrix problems with double-complex elements.
+     * solving triangular banded matrix problems with double-complex elements..
      *
      * Matrix-vector products:
      *   - \f$ A X \leftarrow  X \f$
      *   - \f$ A^T X \leftarrow  X \f$
      *
-     * @param (in) order                Row/column order.
-     * @param (in) uplo             The triangle in matrix being referenced.
-     * @param (in) trans                How matrix \b A is to be transposed.
-     * @param (in) diag             Specify whether matrix \b A is unit triangular.
-     * @param (in) N                    Number of rows/columns in banded matrix \b A.
-     * @param (in) K                    Number of sub-diagonals/super-diagonals in triangular banded matrix \b A.
-     * @param (in) A                    Buffer object storing matrix \b A.
-     * @param (in) offa             Offset in number of elements for first element in matrix \b A.
-     * @param (in) lda              Leading dimension of matrix \b A. It cannot be less
-     *                              than ( \b K + 1 )
-     * @param (out) X               Buffer object storing vector \b X.
-     * @param (in) offx             Offset in number of elements for first element in vector \b X.
-     * @param (in) incx             Increment for the elements of \b X. Must not be zero.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param order             Row/column (in) order.
+     * @param uplo              The (in) triangle in matrix being referenced.
+     * @param trans             How (in) matrix  A is to be transposed.
+     * @param diag              Specify (in) whether matrix  A is unit triangular.
+     * @param N                 Number (in) of rows/columns in banded matrix  A.
+     * @param K                 Number (in) of sub-diagonals/super-diagonals in triangular banded matrix  A.
+     * @param A                 Buffer (in) object storing matrix  A.
+     * @param offa              Offset (in) in number of elements for first element in matrix  A.
+     * @param lda               Leading (in) dimension of matrix  A. It cannot be less
+     *                              than (  K + 1 )
+     * @param X             Buffer (out) object storing vector  X.
+     * @param offx              Offset (in) in number of elements for first element in vector  X.
+     * @param incx              Increment (in) for the elements of  X. Must not be zero.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return The same result as the clblasDtbsv() function.
      *
-     * @ingroup TBSV
-     * </pre>
      */
     public static int clblasZtbsv(
         int order, 
@@ -9719,80 +8962,59 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup BLAS3 BLAS-3 functions
-     *
-     * The Level 3 Basic Linear Algebra Subprograms are funcions that perform
-     * matrix-matrix operations.
-     * </pre>
-     */
-    /**@{*/
-    /**@}*/
-    /**
-     * <pre>
-     * @defgroup GEMM GEMM - General matrix-matrix multiplication
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-matrix product of general rectangular matrices with float
+     * Matrix-matrix product of general rectangular matrices with float.
      *        elements. Extended version.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A B^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B^T + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B^T + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) transB    How matrix \b B is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) K         Number of columns in matrix \b A and rows in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param transB (in)    How matrix  B is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param K (in)         Number of columns in matrix  A and rows in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b K when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  K when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b K
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in)  offC     Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  K
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param  (in) offC     Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or \b offC exceeds
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA,  offB or  offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as clblasSgemm() otherwise.
      *
-     * @ingroup GEMM
-     * </pre>
      */
     public static int clblasSgemm(
         int order, 
@@ -9846,63 +9068,58 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_sgemm.c
      * This is an example of how to use the @ref clblasSgemmEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-matrix product of general rectangular matrices with double
+     * Matrix-matrix product of general rectangular matrices with double.
      *        elements. Extended version.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A B^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B^T + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B^T + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) transB    How matrix \b B is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) K         Number of columns in matrix \b A and rows in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param transB (in)    How matrix  B is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param K (in)         Number of columns in matrix  A and rows in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed description,
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offC      Offset of the first element of the matrix \b C in the
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offC (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. For detailed description,
+     * @param ldc (in)       Leading dimension of matrix  C. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or offC exceeds
+     *   -  clblasInvalidValue if either  offA,  offB or offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as the clblasSgemm() function otherwise.
      *
-     * @ingroup GEMM
-     * </pre>
      */
     public static int clblasDgemm(
         int order, 
@@ -9956,55 +9173,52 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-matrix product of general rectangular matrices with float
+     * Matrix-matrix product of general rectangular matrices with float.
      *        complex elements. Extended version.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A B^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B^T + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B^T + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) transB    How matrix \b B is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) K         Number of columns in matrix \b A and rows in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param transB (in)    How matrix  B is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param K (in)         Number of columns in matrix  A and rows in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed description,
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offC      Offset of the first element of the matrix \b C in the
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offC (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. For detailed description,
+     * @param ldc (in)       Leading dimension of matrix  C. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or offC exceeds
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA,  offB or offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as the clblasSgemm() function otherwise.
      *
-     * @ingroup GEMM
-     * </pre>
      */
     public static int clblasCgemm(
         int order, 
@@ -10058,57 +9272,54 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-matrix product of general rectangular matrices with double
+     * Matrix-matrix product of general rectangular matrices with double.
      *        complex elements. Exteneded version.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A B^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B^T + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + eta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B^T + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) transB    How matrix \b B is to be transposed.
-     * @param (in) M         Number of rows in matrix \b A.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) K         Number of columns in matrix \b A and rows in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param transB (in)    How matrix  B is to be transposed.
+     * @param M (in)         Number of rows in matrix  A.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param K (in)         Number of columns in matrix  A and rows in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed description,
+     * @param lda (in)       Leading dimension of matrix  A. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed description,
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offC      Offset of the first element of the matrix \b C in the
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offC (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. For detailed description,
+     * @param ldc (in)       Leading dimension of matrix  C. For detailed description,
      *                      see clblasSgemm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or offC exceeds
+     *   -  clblasInvalidValue if either  offA,  offB or offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as the clblasSgemm() function otherwise.
      *
-     * @ingroup GEMM
-     * </pre>
      */
     public static int clblasZgemm(
         int order, 
@@ -10161,17 +9372,8 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TRMM TRMM - Triangular matrix-matrix multiplication
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Multiplying a matrix by a triangular matrix with float elements.
+     * Multiplying a matrix by a triangular matrix with float elements..
      *        Extended version.
      *
      * Matrix-triangular matrix products:
@@ -10180,46 +9382,44 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A \f$
      *   - \f$ B \leftarrow \alpha B A^T \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when it is set
-     *                      to \b clblasRight.
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when it is set
+     *                      to  clblasRight.
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or not less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or not less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as clblasStrmm() otherwise.
      *
-     * @ingroup TRMM
-     * </pre>
      */
     public static int clblasStrmm(
         int order, 
@@ -10267,14 +9467,11 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_strmm.c
      * This is an example of how to use the @ref clblasStrmmEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Multiplying a matrix by a triangular matrix with double elements.
+     * Multiplying a matrix by a triangular matrix with double elements..
      *        Extended version.
      *
      * Matrix-triangular matrix products:
@@ -10283,44 +9480,42 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A \f$
      *   - \f$ B \leftarrow \alpha B A^T \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrmm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrmm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasStrmm() function otherwise.
      *
-     * @ingroup TRMM
-     * </pre>
      */
     public static int clblasDtrmm(
         int order, 
@@ -10368,8 +9563,7 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Multiplying a matrix by a triangular matrix with float complex
+     * Multiplying a matrix by a triangular matrix with float complex.
      *        elements. Extended version.
      *
      * Matrix-triangular matrix products:
@@ -10378,41 +9572,39 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A \f$
      *   - \f$ B \leftarrow \alpha B A^T \f$
      *
-     * where \b T is an upper or lower triangular matrix.
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * where  T is an upper or lower triangular matrix.
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrmm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrmm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as clblasStrmm() otherwise.
      *
-     * @ingroup TRMM
-     * </pre>
      */
     public static int clblasCtrmm(
         int order, 
@@ -10460,8 +9652,7 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Multiplying a matrix by a triangular matrix with double complex
+     * Multiplying a matrix by a triangular matrix with double complex.
      *        elements. Extended version.
      *
      * Matrix-triangular matrix products:
@@ -10470,44 +9661,42 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A \f$
      *   - \f$ B \leftarrow \alpha B A^T \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrmm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrmm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasStrmm() function otherwise.
      *
-     * @ingroup TRMM
-     * </pre>
      */
     public static int clblasZtrmm(
         int order, 
@@ -10554,17 +9743,8 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup TRSM TRSM - Solving triangular systems of equations
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Solving triangular systems of equations with multiple right-hand
+     * Solving triangular systems of equations with multiple right-hand.
      *        sides and float elements. Extended version.
      *
      * Solving triangular systems of equations:
@@ -10573,46 +9753,44 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A^{-1} \f$
      *   - \f$ B \leftarrow \alpha B A^{-T} \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N
-     *                      when it is set to \b clblasRight.
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N
+     *                      when it is set to  clblasRight.
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as clblasStrsm() otherwise.
      *
-     * @ingroup TRSM
-     * </pre>
      */
     public static int clblasStrsm(
         int order, 
@@ -10660,14 +9838,11 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_strsm.c
      * This is an example of how to use the @ref clblasStrsmEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Solving triangular systems of equations with multiple right-hand
+     * Solving triangular systems of equations with multiple right-hand.
      *        sides and double elements. Extended version.
      *
      * Solving triangular systems of equations:
@@ -10676,44 +9851,42 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A^{-1} \f$
      *   - \f$ B \leftarrow \alpha B A^{-T} \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrsm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b A in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrsm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasStrsm() function otherwise.
      *
-     * @ingroup TRSM
-     * </pre>
      */
     public static int clblasDtrsm(
         int order, 
@@ -10761,8 +9934,7 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Solving triangular systems of equations with multiple right-hand
+     * Solving triangular systems of equations with multiple right-hand.
      *        sides and float complex elements. Extended version.
      *
      * Solving triangular systems of equations:
@@ -10771,42 +9943,40 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A^{-1} \f$
      *   - \f$ B \leftarrow \alpha B A^{-T} \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrsm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrsm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as clblasStrsm() otherwise.
      *
-     * @ingroup TRSM
-     * </pre>
      */
     public static int clblasCtrsm(
         int order, 
@@ -10854,8 +10024,7 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Solving triangular systems of equations with multiple right-hand
+     * Solving triangular systems of equations with multiple right-hand.
      *        sides and double complex elements. Extended version.
      *
      * Solving triangular systems of equations:
@@ -10864,44 +10033,42 @@ public class CLBLAS
      *   - \f$ B \leftarrow \alpha B A^{-1} \f$
      *   - \f$ B \leftarrow \alpha B A^{-T} \f$
      *
-     * where \b T is an upper or lower triangular matrix.
+     * where  T is an upper or lower triangular matrix.
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side      The side of triangular matrix.
-     * @param (in) uplo      The triangle in matrix being referenced.
-     * @param (in) transA    How matrix \b A is to be transposed.
-     * @param (in) diag      Specify whether matrix is unit triangular.
-     * @param (in) M         Number of rows in matrix \b B.
-     * @param (in) N         Number of columns in matrix \b B.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offA      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side (in)      The side of triangular matrix.
+     * @param uplo (in)      The triangle in matrix being referenced.
+     * @param transA (in)    How matrix  A is to be transposed.
+     * @param diag (in)      Specify whether matrix is unit triangular.
+     * @param M (in)         Number of rows in matrix  B.
+     * @param N (in)         Number of columns in matrix  B.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offA (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. For detailed
+     * @param lda (in)       Leading dimension of matrix  A. For detailed
      *                      description, see clblasStrsm().
-     * @param (out) B        Buffer object storing matrix \b B.
-     * @param (in) offB      Offset of the first element of the matrix \b B in the
+     * @param B (out)        Buffer object storing matrix  B.
+     * @param offB (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)       Leading dimension of matrix  B. For detailed
      *                      description, see clblasStrsm().
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offB exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offB exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasStrsm() function otherwise
      *
-     * @ingroup TRSM
-     * </pre>
      */
     public static int clblasZtrsm(
         int order, 
@@ -10948,61 +10115,50 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYRK SYRK - Symmetric rank-k update of a matrix
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Rank-k update of a symmetric matrix with float elements.
+     * Rank-k update of a symmetric matrix with float elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T A + eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be
-     *                       less than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be
+     *                       less than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise.
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matric \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matric  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offC exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offC exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasSsyrk() function otherwise.
      *
-     * @ingroup SYRK
-     * </pre>
      */
     public static int clblasSsyrk(
         int order, 
@@ -11048,58 +10204,53 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_ssyrk.c
      * This is an example of how to use the @ref clblasSsyrkEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Rank-k update of a symmetric matrix with double elements.
+     * Rank-k update of a symmetric matrix with double elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T A + eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyrk().
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offC exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offC exceeds the size
      *        of the respective buffer object;
      *   - the same error codes as the clblasSsyrk() function otherwise.
      *
-     * @ingroup SYRK
-     * </pre>
      */
     public static int clblasDsyrk(
         int order, 
@@ -11145,51 +10296,48 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Rank-k update of a symmetric matrix with complex float elements.
+     * Rank-k update of a symmetric matrix with complex float elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T A + eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyrk().
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA or \b offC exceeds the size
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA or  offC exceeds the size
      *        of the respective buffer object;
-     *   - \b clblasInvalidValue if \b transA is set to \ref clblasConjTrans.
+     *   -  clblasInvalidValue if  transA is set to \ref clblasConjTrans.
      *   - the same error codes as the clblasSsyrk() function otherwise.
      *
-     * @ingroup SYRK
-     * </pre>
      */
     public static int clblasCsyrk(
         int order, 
@@ -11235,53 +10383,50 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Rank-k update of a symmetric matrix with complex double elements.
+     * Rank-k update of a symmetric matrix with complex double elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T A + eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyrk().
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *         point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA or \b offC exceeds the size
+     *   -  clblasInvalidValue if either  offA or  offC exceeds the size
      *        of the respective buffer object;
-     *   - \b clblasInvalidValue if \b transA is set to \ref clblasConjTrans.
+     *   -  clblasInvalidValue if  transA is set to \ref clblasConjTrans.
      *   - the same error codes as the clblasSsyrk() function otherwise.
      *
-     * @ingroup SYRK
-     * </pre>
      */
     public static int clblasZsyrk(
         int order, 
@@ -11326,68 +10471,57 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYR2K SYR2K - Symmetric rank-2k update to a matrix
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Rank-2k update of a symmetric matrix with float elements.
+     * Rank-2k update of a symmetric matrix with float elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transAB    How matrices \b A and \b B is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrices \b A and \b B if they
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transAB (in)    How matrices  A and  B is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrices  A and  B if they
      *                       are not transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrices \b A and \b B.
-     * @param (in) A          Buffer object storing matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrices  A and  B.
+     * @param A (in)          Buffer object storing matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be less
-     *                       than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be less
+     *                       than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise.
-     * @param (in) B          Buffer object storing matrix \b B.
-     * @param (in) offB       Offset of the first element of the matrix \b B in the
+     * @param B (in)          Buffer object storing matrix  B.
+     * @param offB (in)       Offset of the first element of the matrix  B in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldb        Leading dimension of matrix \b B. It cannot be less
-     *                       less than \b K if \b B matches to the op(\b B) matrix
-     *                       in the row-major format, and less than \b N
+     * @param ldb (in)        Leading dimension of matrix  B. It cannot be less
+     *                       less than  K if  B matches to the op( B) matrix
+     *                       in the row-major format, and less than  N
      *                       otherwise.
-     * @param (in) beta       The factor of matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or \b offC exceeds
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA,  offB or  offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as the clblasSsyr2k() function otherwise.
      *
-     * @ingroup SYR2K
-     * </pre>
      */
     public static int clblasSsyr2k(
         int order, 
@@ -11439,63 +10573,58 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_ssyr2k.c
      * This is an example of how to use the @ref clblasSsyr2kEx function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Rank-2k update of a symmetric matrix with double elements.
+     * Rank-2k update of a symmetric matrix with double elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transAB    How matrices \b A and \b B is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrices \b A and \b B if they
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transAB (in)    How matrices  A and  B is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrices  A and  B if they
      *                       are not transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrices \b A and \b B.
-     * @param (in) A          Buffer object storing matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrices  A and  B.
+     * @param A (in)          Buffer object storing matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) B          Buffer object storing matrix \b B.
-     * @param (in) offB       Offset of the first element of the matrix \b B in the
+     * @param B (in)          Buffer object storing matrix  B.
+     * @param offB (in)       Offset of the first element of the matrix  B in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldb        Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)        Leading dimension of matrix  B. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) beta       The factor of matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or \b offC exceeds
+     *   -  clblasInvalidValue if either  offA,  offB or  offC exceeds
      *        the size of the respective buffer object;
      *   - the same error codes as the clblasSsyr2k() function otherwise.
      *
-     * @ingroup SYR2K
-     * </pre>
      */
     public static int clblasDsyr2k(
         int order, 
@@ -11547,56 +10676,53 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Rank-2k update of a symmetric matrix with complex float elements.
+     * Rank-2k update of a symmetric matrix with complex float elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transAB    How matrices \b A and \b B is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrices \b A and \b B if they
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transAB (in)    How matrices  A and  B is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrices  A and  B if they
      *                       are not transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrices \b A and \b B.
-     * @param (in) A          Buffer object storing matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrices  A and  B.
+     * @param A (in)          Buffer object storing matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) B          Buffer object storing matrix \b B.
-     * @param (in) offB       Offset of the first element of the matrix \b B in the
+     * @param B (in)          Buffer object storing matrix  B.
+     * @param offB (in)       Offset of the first element of the matrix  B in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldb        Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)        Leading dimension of matrix  B. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) beta       The factor of matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or \b offC exceeds
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidValue if either  offA,  offB or  offC exceeds
      *        the size of the respective buffer object;
-     *   - \b clblasInvalidValue if \b transAB is set to \ref clblasConjTrans.
+     *   -  clblasInvalidValue if  transAB is set to \ref clblasConjTrans.
      *   - the same error codes as the clblasSsyr2k() function otherwise.
      *
-     * @ingroup SYR2K
-     * </pre>
      */
     public static int clblasCsyr2k(
         int order, 
@@ -11648,58 +10774,55 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Rank-2k update of a symmetric matrix with complex double elements.
+     * Rank-2k update of a symmetric matrix with complex double elements..
      *        Extended version.
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^T + \alpha B A^T + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^T B + \alpha B^T A eta C \f$
      *
-     * where \b C is a symmetric matrix.
+     * where  C is a symmetric matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transAB    How matrices \b A and \b B is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrices \b A and \b B if they
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transAB (in)    How matrices  A and  B is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrices  A and  B if they
      *                       are not transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrices \b A and \b B.
-     * @param (in) A          Buffer object storing matrix \b A.
-     * @param (in) offA       Offset of the first element of the matrix \b A in the
+     * @param alpha (in)      The factor of matrices  A and  B.
+     * @param A (in)          Buffer object storing matrix  A.
+     * @param offA (in)       Offset of the first element of the matrix  A in the
      *                       buffer object. Counted in elements.
-     * @param (in) lda        Leading dimension of matrix \b A. For detailed
+     * @param lda (in)        Leading dimension of matrix  A. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) B          Buffer object storing matrix \b B.
-     * @param (in) offB       Offset of the first element of the matrix \b B in the
+     * @param B (in)          Buffer object storing matrix  B.
+     * @param offB (in)       Offset of the first element of the matrix  B in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldb        Leading dimension of matrix \b B. For detailed
+     * @param ldb (in)        Leading dimension of matrix  B. For detailed
      *                       description, see clblasSsyr2k().
-     * @param (in) beta       The factor of matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offC       Offset of the first element of the matrix \b C in the
+     * @param beta (in)       The factor of matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offC (in)       Offset of the first element of the matrix  C in the
      *                       buffer object. Counted in elements.
-     * @param (in) ldc        Leading dimension of matrix \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)        Leading dimension of matrix  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *        point arithmetic with double precision;
-     *   - \b clblasInvalidValue if either \b offA, \b offB or \b offC exceeds
+     *   -  clblasInvalidValue if either  offA,  offB or  offC exceeds
      *        the size of the respective buffer object;
-     *   - \b clblasInvalidValue if \b transAB is set to \ref clblasConjTrans.
+     *   -  clblasInvalidValue if  transAB is set to \ref clblasConjTrans.
      *   - the same error codes as the clblasSsyr2k() function otherwise.
      *
-     * @ingroup SYR2K
-     * </pre>
      */
     public static int clblasZsyr2k(
         int order, 
@@ -11750,83 +10873,72 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup SYMM SYMM  - Symmetric matrix-matrix multiply
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-matrix product of symmetric rectangular matrices with float
+     * Matrix-matrix product of symmetric rectangular matrices with float.
      * elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events             Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events             (in)  Event objects per each command queue that identify
      *                                a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b M or \b N is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  M or  N is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix sizes lead to accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if A, B, or C object is invalid,
+     *   -  clblasInvalidMemObject if A, B, or C object is invalid,
      *     or an image object rather than the buffer one;
-     *   - \b clblasOutOfResources if you use image-based function implementation
+     *   -  clblasOutOfResources if you use image-based function implementation
      *     and no suitable scratch image available;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup SYMM
-     * </pre>
      */
     public static int clblasSsymm(
         int order, 
@@ -11878,64 +10990,59 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_ssymm.c
      * This is an example of how to use the @ref clblasSsymm function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-matrix product of symmetric rectangular matrices with double
+     * Matrix-matrix product of symmetric rectangular matrices with double.
      * elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events             Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events             (in)  Event objects per each command queue that identify
      *                                a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasSsymm() function otherwise.
      *
-     * @ingroup SYMM
-     * </pre>
      */
     public static int clblasDsymm(
         int order, 
@@ -11987,54 +11094,51 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-matrix product of symmetric rectangular matrices with
+     * Matrix-matrix product of symmetric rectangular matrices with.
      * float-complex elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events             Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events             (in)  Event objects per each command queue that identify
      *                                a particular kernel execution instance.
      *
      * @return The same result as the clblasSsymm() function.
      *
-     * @ingroup SYMM
-     * </pre>
      */
     public static int clblasCsymm(
         int order, 
@@ -12086,54 +11190,51 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Matrix-matrix product of symmetric rectangular matrices with
+     * Matrix-matrix product of symmetric rectangular matrices with.
      * double-complex elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events             Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events             (in)  Event objects per each command queue that identify
      *                                a particular kernel execution instance.
      *
      * @return The same result as the clblasDsymm() function.
      *
-     * @ingroup SYMM
-     * </pre>
      */
     public static int clblasZsymm(
         int order, 
@@ -12184,83 +11285,72 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HEMM HEMM  - Hermitian matrix-matrix multiplication
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Matrix-matrix product of hermitian rectangular matrices with
+     * Matrix-matrix product of hermitian rectangular matrices with.
      * float-complex elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - \b M or \b N is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     -  M or  N is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix sizes lead to accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if A, B, or C object is invalid,
+     *   -  clblasInvalidMemObject if A, B, or C object is invalid,
      *     or an image object rather than the buffer one;
-     *   - \b clblasOutOfResources if you use image-based function implementation
+     *   -  clblasOutOfResources if you use image-based function implementation
      *     and no suitable scratch image available;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released;
-     *   - \b clblasInvalidOperation if kernel compilation relating to a previous
+     *   -  clblasInvalidOperation if kernel compilation relating to a previous
      *     call has not completed for any of the target devices;
-     *   - \b clblasCompilerNotAvailable if a compiler is not available;
-     *   - \b clblasBuildProgramFailure if there is a failure to build a program
+     *   -  clblasCompilerNotAvailable if a compiler is not available;
+     *   -  clblasBuildProgramFailure if there is a failure to build a program
      *     executable.
      *
-     * @ingroup HEMM
-     * </pre>
      */
     public static int clblasChemm(
         int order, 
@@ -12312,64 +11402,59 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_chemm.cpp
      * This is an example of how to use the @ref clblasChemm function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Matrix-matrix product of hermitian rectangular matrices with
+     * Matrix-matrix product of hermitian rectangular matrices with.
      * double-complex elements.
      *
      * Matrix-matrix products:
-     *   - \f$ C \leftarrow \alpha A B + \beta C \f$
-     *   - \f$ C \leftarrow \alpha B A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B + eta C \f$
+     *   - \f$ C \leftarrow \alpha B A + eta C \f$
      *
-     * @param (in) order     Row/column order.
-     * @param (in) side     The side of triangular matrix.
-     * @param (in) uplo     The triangle in matrix being referenced.
-     * @param (in) M         Number of rows in matrices \b B and \b C.
-     * @param (in) N         Number of columns in matrices \b B and \b C.
-     * @param (in) alpha     The factor of matrix \b A.
-     * @param (in) A         Buffer object storing matrix \b A.
-     * @param (in) offa      Offset of the first element of the matrix \b A in the
+     * @param order (in)     Row/column order.
+     * @param side      The (in) side of triangular matrix.
+     * @param uplo      The (in) triangle in matrix being referenced.
+     * @param M (in)         Number of rows in matrices  B and  C.
+     * @param N (in)         Number of columns in matrices  B and  C.
+     * @param alpha (in)     The factor of matrix  A.
+     * @param A (in)         Buffer object storing matrix  A.
+     * @param offa (in)      Offset of the first element of the matrix  A in the
      *                      buffer object. Counted in elements.
-     * @param (in) lda       Leading dimension of matrix \b A. It cannot be less
-     *                      than \b M when the \b side parameter is set to
-     *                      \b clblasLeft,\n or less than \b N when the
-     *                      parameter is set to \b clblasRight.
-     * @param (in) B         Buffer object storing matrix \b B.
-     * @param (in) offb      Offset of the first element of the matrix \b B in the
+     * @param lda (in)       Leading dimension of matrix  A. It cannot be less
+     *                      than  M when the  side parameter is set to
+     *                       clblasLeft,\n or less than  N when the
+     *                      parameter is set to  clblasRight.
+     * @param B (in)         Buffer object storing matrix  B.
+     * @param offb (in)      Offset of the first element of the matrix  B in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldb       Leading dimension of matrix \b B. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M
-     *                      when it is set to \b clblasColumnMajor.
-     * @param (in) beta      The factor of matrix \b C.
-     * @param (out) C        Buffer object storing matrix \b C.
-     * @param (in) offc      Offset of the first element of the matrix \b C in the
+     * @param ldb (in)       Leading dimension of matrix  B. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M
+     *                      when it is set to  clblasColumnMajor.
+     * @param beta (in)      The factor of matrix  C.
+     * @param C (out)        Buffer object storing matrix  C.
+     * @param offc (in)      Offset of the first element of the matrix  C in the
      *                      buffer object. Counted in elements.
-     * @param (in) ldc       Leading dimension of matrix \b C. It cannot be less
-     *                      than \b N when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b M when
-     *                      it is set to \b clblasColumnMajorOrder.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param ldc (in)       Leading dimension of matrix  C. It cannot be less
+     *                      than  N when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  M when
+     *                      it is set to  clblasColumnMajorOrder.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasChemm() function otherwise.
      *
-     * @ingroup HEMM
-     * </pre>
      */
     public static int clblasZhemm(
         int order, 
@@ -12420,67 +11505,56 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HERK HERK  - Hermitian rank-k update to a matrix
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Rank-k update of a hermitian matrix with float-complex elements.
+     * Rank-k update of a hermitian matrix with float-complex elements..
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^H + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^H A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^H + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^H A + eta C \f$
      *
-     * where \b C is a hermitian matrix.
+     * where  C is a hermitian matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offa       Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be
-     *                       less than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offa (in)       Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be
+     *                       less than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise.
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offc       Offset in number of elements for the first element in matrix \b C.
-     * @param (in) ldc        Leading dimension of matric \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offc (in)       Offset in number of elements for the first element in matrix  C.
+     * @param ldc (in)        Leading dimension of matric  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b K is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  K is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix sizes lead to accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b A or \b C object is
+     *   -  clblasInvalidMemObject if either  A or  C object is
      *     invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released.
      *
-     * @ingroup HERK
-     * </pre>
      */
     public static int clblasCherk(
         int order, 
@@ -12526,55 +11600,50 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_cherk.cpp
      * This is an example of how to use the @ref clblasCherk function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Rank-k update of a hermitian matrix with double-complex elements.
+     * Rank-k update of a hermitian matrix with double-complex elements..
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A A^H + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^H A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A A^H + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^H A + eta C \f$
      *
-     * where \b C is a hermitian matrix.
+     * where  C is a hermitian matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) transA     How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param transA (in)     How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offa       Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be
-     *                       less than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offa (in)       Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be
+     *                       less than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise.
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offc       Offset in number of elements for the first element in matrix \b C.
-     * @param (in) ldc        Leading dimension of matric \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offc (in)       Offset in number of elements for the first element in matrix  C.
+     * @param ldc (in)        Leading dimension of matric  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCherk() function otherwise.
      *
-     * @ingroup HERK
-     * </pre>
      */
     public static int clblasZherk(
         int order, 
@@ -12619,73 +11688,62 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * @defgroup HER2K HER2K  - Hermitian rank-2k update to a matrix
-     * @ingroup BLAS3
-     * </pre>
-     */
-    /**@{*/
-    /**
-     * <pre>
-     * Rank-2k update of a hermitian matrix with float-complex elements.
+     * Rank-2k update of a hermitian matrix with float-complex elements..
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^H + conj( \alpha ) B A^H + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^H B + conj( \alpha ) B^H A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^H + conj( \alpha ) B A^H + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^H B + conj( \alpha ) B^H A + eta C \f$
      *
-     * where \b C is a hermitian matrix.
+     * where  C is a hermitian matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) trans      How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param trans (in)      How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offa       Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be
-     *                       less than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offa (in)       Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be
+     *                       less than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise. Vice-versa for transpose case.
-     * @param (in) B          Buffer object storing the matrix \b B.
-     * @param (in) offb       Offset in number of elements for the first element in matrix \b B.
-     * @param (in) ldb        Leading dimension of matrix \b B. It cannot be
-     *                       less than \b K if \b B is
-     *                       in the row-major format, and less than \b N
+     * @param B (in)          Buffer object storing the matrix  B.
+     * @param offb (in)       Offset in number of elements for the first element in matrix  B.
+     * @param ldb (in)        Leading dimension of matrix  B. It cannot be
+     *                       less than  K if  B is
+     *                       in the row-major format, and less than  N
      *                       otherwise. Vice-versa for transpose case
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offc       Offset in number of elements for the first element in matrix \b C.
-     * @param (in) ldc        Leading dimension of matric \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offc (in)       Offset in number of elements for the first element in matrix  C.
+     * @param ldc (in)        Leading dimension of matric  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasNotInitialized if clblasSetup() was not called;
-     *   - \b clblasInvalidValue if invalid parameters are passed:
-     *     - either \b N or \b K is zero, or
+     *   -  clblasSuccess on success;
+     *   -  clblasNotInitialized if clblasSetup() was not called;
+     *   -  clblasInvalidValue if invalid parameters are passed:
+     *     - either  N or  K is zero, or
      *     - any of the leading dimensions is invalid;
      *     - the matrix sizes lead to accessing outsize of any of the buffers;
-     *   - \b clblasInvalidMemObject if either \b A , \b B or \b C object is
+     *   -  clblasInvalidMemObject if either  A ,  B or  C object is
      *     invalid, or an image object rather than the buffer one;
-     *   - \b clblasOutOfHostMemory if the library can't allocate memory for
+     *   -  clblasOutOfHostMemory if the library can't allocate memory for
      *     internal structures;
-     *   - \b clblasInvalidCommandQueue if the passed command queue is invalid;
-     *   - \b clblasInvalidContext if a context a passed command queue belongs to
+     *   -  clblasInvalidCommandQueue if the passed command queue is invalid;
+     *   -  clblasInvalidContext if a context a passed command queue belongs to
      *     was released.
      *
-     * @ingroup HER2K
-     * </pre>
      */
     public static int clblasCher2k(
         int order, 
@@ -12737,61 +11795,56 @@ public class CLBLAS
 
 
     /**
-     * <pre>
      * @example example_cher2k.c
      * This is an example of how to use the @ref clblasCher2k function.
-     * </pre>
      */
     /**
-     * <pre>
-     * Rank-2k update of a hermitian matrix with double-complex elements.
+     * Rank-2k update of a hermitian matrix with double-complex elements..
      *
      * Rank-k updates:
-     *   - \f$ C \leftarrow \alpha A B^H + conj( \alpha ) B A^H + \beta C \f$
-     *   - \f$ C \leftarrow \alpha A^H B + conj( \alpha ) B^H A + \beta C \f$
+     *   - \f$ C \leftarrow \alpha A B^H + conj( \alpha ) B A^H + eta C \f$
+     *   - \f$ C \leftarrow \alpha A^H B + conj( \alpha ) B^H A + eta C \f$
      *
-     * where \b C is a hermitian matrix.
+     * where  C is a hermitian matrix.
      *
-     * @param (in) order      Row/column order.
-     * @param (in) uplo       The triangle in matrix \b C being referenced.
-     * @param (in) trans      How matrix \b A is to be transposed.
-     * @param (in) N          Number of rows and columns in matrix \b C.
-     * @param (in) K          Number of columns of the matrix \b A if it is not
+     * @param order (in)      Row/column order.
+     * @param uplo (in)       The triangle in matrix  C being referenced.
+     * @param trans (in)      How matrix  A is to be transposed.
+     * @param N (in)          Number of rows and columns in matrix  C.
+     * @param K (in)          Number of columns of the matrix  A if it is not
      *                       transposed, and number of rows otherwise.
-     * @param (in) alpha      The factor of matrix \b A.
-     * @param (in) A          Buffer object storing the matrix \b A.
-     * @param (in) offa       Offset in number of elements for the first element in matrix \b A.
-     * @param (in) lda        Leading dimension of matrix \b A. It cannot be
-     *                       less than \b K if \b A is
-     *                       in the row-major format, and less than \b N
+     * @param alpha (in)      The factor of matrix  A.
+     * @param A (in)          Buffer object storing the matrix  A.
+     * @param offa (in)       Offset in number of elements for the first element in matrix  A.
+     * @param lda (in)        Leading dimension of matrix  A. It cannot be
+     *                       less than  K if  A is
+     *                       in the row-major format, and less than  N
      *                       otherwise. Vice-versa for transpose case.
-     * @param (in) B          Buffer object storing the matrix \b B.
-     * @param (in) offb       Offset in number of elements for the first element in matrix \b B.
-     * @param (in) ldb        Leading dimension of matrix \b B. It cannot be
-     *                       less than \b K if B is
-     *                       in the row-major format, and less than \b N
+     * @param B (in)          Buffer object storing the matrix  B.
+     * @param offb (in)       Offset in number of elements for the first element in matrix  B.
+     * @param ldb (in)        Leading dimension of matrix  B. It cannot be
+     *                       less than  K if B is
+     *                       in the row-major format, and less than  N
      *                       otherwise. Vice-versa for transpose case.
-     * @param (in) beta       The factor of the matrix \b C.
-     * @param (out) C         Buffer object storing matrix \b C.
-     * @param (in) offc       Offset in number of elements for the first element in matrix \b C.
-     * @param (in) ldc        Leading dimension of matric \b C. It cannot be less
-     *                       than \b N.
-     * @param (in) numCommandQueues    Number of OpenCL command queues in which the
+     * @param beta (in)       The factor of the matrix  C.
+     * @param C (out)         Buffer object storing matrix  C.
+     * @param offc (in)       Offset in number of elements for the first element in matrix  C.
+     * @param ldc (in)        Leading dimension of matric  C. It cannot be less
+     *                       than  N.
+     * @param numCommandQueues (in)    Number of OpenCL command queues in which the
      *                                task is to be performed.
-     * @param (in) commandQueues       OpenCL command queues.
-     * @param (in) numEventsInWaitList Number of events in the event wait list.
-     * @param (in) eventWaitList       Event wait list.
-     * @param (in) events     Event objects per each command queue that identify
+     * @param commandQueues (in)       OpenCL command queues.
+     * @param numEventsInWaitList (in) Number of events in the event wait list.
+     * @param eventWaitList (in)       Event wait list.
+     * @param events (in)     Event objects per each command queue that identify
      *                       a particular kernel execution instance.
      *
      * @return
-     *   - \b clblasSuccess on success;
-     *   - \b clblasInvalidDevice if a target device does not support floating
+     *   -  clblasSuccess on success;
+     *   -  clblasInvalidDevice if a target device does not support floating
      *     point arithmetic with double precision;
      *   - the same error codes as the clblasCher2k() function otherwise.
      *
-     * @ingroup HER2K
-     * </pre>
      */
     public static int clblasZher2k(
         int order, 
@@ -12842,26 +11895,23 @@ public class CLBLAS
         cl_event[] events);
 
 
-    /**@}*/
     /**
-     * <pre>
-     * Helper function to compute leading dimension and size of a matrix
+     * Helper function to compute leading dimension and size of a matrix.
      *
-     * @param (in) order    matrix ordering
-     * @param (in) rows number of rows
-     * @param (in) columns  number of column
-     * @param (in) elemsize element size
-     * @param (in) padding  additional padding on the leading dimension
-     * @param (out) ld  if non-NULL *ld is filled with the leading dimension  
+     * @param order matrix (in) ordering
+     * @param rows  number (in) of rows
+     * @param columns   number (in) of column
+     * @param elemsize  element (in) size
+     * @param padding   additional (in) padding on the leading dimension
+     * @param ld    if (out) non-NULL *ld is filled with the leading dimension
      *          in elements
-     * @param (out) fullsize    if non-NULL *fullsize is filled with the byte size
+     * @param fullsize  if (out) non-NULL *fullsize is filled with the byte size
      *
      * @return
-     *   - \b clblasSuccess for success
-     *   - \b clblasInvalidValue if:
-     *   - \b elementsize is 0
-     *   - \b row and \b colums are both equal to 0
-     * </pre>
+     *   -  clblasSuccess for success
+     *   -  clblasInvalidValue if:
+     *   -  elementsize is 0
+     *   -  row and  colums are both equal to 0
      */
     public static int clblasMatrixSizeInfo(
         int order, 
@@ -12885,23 +11935,21 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Allocates matrix on device and computes ld and size
+     * Allocates matrix on device and computes ld and size.
      *
-     * @param (in) context  OpenCL context
-     * @param (in) order    Row/column order.
-     * @param (in) rows number of rows
-     * @param (in) columns  number of columns
-     * @param (in) elemsize element size
-     * @param (in) padding  additional padding on the leading dimension
-     * @param (out) ld  if non-NULL *ld is filled with the leading dimension  
+     * @param context   OpenCL (in) context
+     * @param order Row/column (in) order.
+     * @param rows  number (in) of rows
+     * @param columns   number (in) of columns
+     * @param elemsize  element (in) size
+     * @param padding   additional (in) padding on the leading dimension
+     * @param ld    if (out) non-NULL *ld is filled with the leading dimension
      *          in elements
-     * @param (out) fullsize    if non-NULL *fullsize is filled with the byte size
-     * @param (in) err  Error code (see \b clCreateBuffer() )
+     * @param fullsize  if (out) non-NULL *fullsize is filled with the byte size
+     * @param err   Error (in) code (see  clCreateBuffer() )
      * 
      * @return
      *   - OpenCL memory object of the allocated matrix
-     * </pre>
      */
     public static cl_mem clblasCreateMatrix(
         cl_context context, 
@@ -12914,7 +11962,7 @@ public class CLBLAS
         long[] fullsize, 
         int[] err)
     {
-        return clblasCreateMatrixNative(context, order, rows, columns, elemsize, padding, ld, fullsize, err);
+        return checkResult(clblasCreateMatrixNative(context, order, rows, columns, elemsize, padding, ld, fullsize, err));
     }
     private static native cl_mem clblasCreateMatrixNative(
         cl_context context, 
@@ -12929,25 +11977,23 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Allocates matrix on device with specified size and ld and computes its size
+     * Allocates matrix on device with specified size and ld and computes its size.
      *
-     * @param (in) context  OpenCL context
-     * @param (in) order    Row/column order.
-     * @param (in) rows number of rows
-     * @param (in) columns  number of columns 
-     * @param (in) elemsize element size
-     * @param (in) padding  additional padding on the leading dimension
-     * @param (out) ld  the length of the leading dimensions. It cannot 
-     *                      be less than \b columns when the \b order parameter is set to
-     *                      \b clblasRowMajor,\n or less than \b rows when the
-     *                      parameter is set to \b clblasColumnMajor.
-     * @param (out) fullsize    if non-NULL *fullsize is filled with the byte size
-     * @param (in) err  Error code (see \b clCreateBuffer() )
+     * @param context   OpenCL (in) context
+     * @param order Row/column (in) order.
+     * @param rows  number (in) of rows
+     * @param columns   number (in) of columns
+     * @param elemsize  element (in) size
+     * @param padding   additional (in) padding on the leading dimension
+     * @param ld    the (out) length of the leading dimensions. It cannot
+     *                      be less than  columns when the  order parameter is set to
+     *                       clblasRowMajor,\n or less than  rows when the
+     *                      parameter is set to  clblasColumnMajor.
+     * @param fullsize  if (out) non-NULL *fullsize is filled with the byte size
+     * @param err   Error (in) code (see  clCreateBuffer() )
      * 
      * @return
      *   - OpenCL memory object of the allocated matrix
-     * </pre>
      */
     public static cl_mem clblasCreateMatrixWithLd(
         cl_context context, 
@@ -12959,7 +12005,7 @@ public class CLBLAS
         long[] fullsize, 
         int[] err)
     {
-        return clblasCreateMatrixWithLdNative(context, order, rows, columns, elemsize, ld, fullsize, err);
+        return checkResult(clblasCreateMatrixWithLdNative(context, order, rows, columns, elemsize, ld, fullsize, err));
     }
     private static native cl_mem clblasCreateMatrixWithLdNative(
         cl_context context, 
@@ -12973,23 +12019,21 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Allocates matrix on device and initialize from existing similar matrix
-     *    on host. See \b clblasCreateMatrixBuffer().
+     * Allocates matrix on device and initialize from existing similar matrix.
+     *    on host. See  clblasCreateMatrixBuffer().
      *
-     * @param (in) ld   leading dimension in elements
-     * @param (in) host     base address of host matrix data
-     * @param (in) off_host     host matrix offset in elements
-     * @param (in) ld_host  leading dimension of host matrix in elements
-     * @param (in) command_queue        specifies the OpenCL queue
-     * @param (in) numEventsInWaitList  specifies the number of OpenCL events 
+     * @param ld    leading (in) dimension in elements
+     * @param host (in)     base address of host matrix data
+     * @param off_host (in)     host matrix offset in elements
+     * @param ld_host (in)  leading dimension of host matrix in elements
+     * @param command_queue (in)        specifies the OpenCL queue
+     * @param numEventsInWaitList (in)  specifies the number of OpenCL events
      *                          to wait for
-     * @param (in) eventWaitList        specifies the list of OpenCL events to 
+     * @param eventWaitList (in)        specifies the list of OpenCL events to
      *                  wait for
      *                  
      * @return
      *   - OpenCL memory object of the allocated matrix
-     * </pre>
      */
     public static cl_mem clblasCreateMatrixFromHost(
         cl_context context, 
@@ -13006,7 +12050,7 @@ public class CLBLAS
         cl_event[] eventWaitList, 
         int[] err)
     {
-        return clblasCreateMatrixFromHostNative(context, order, rows, columns, elemsize, ld, host, off_host, ld_host, command_queue, numEventsInWaitList, eventWaitList, err);
+        return checkResult(clblasCreateMatrixFromHostNative(context, order, rows, columns, elemsize, ld, host, off_host, ld_host, command_queue, numEventsInWaitList, eventWaitList, err));
     }
     private static native cl_mem clblasCreateMatrixFromHostNative(
         cl_context context, 
@@ -13025,57 +12069,55 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a sub-matrix from host (A) to device (B).
+     * Copies synchronously a sub-matrix from host (A) to device (B)..
      * 
-     * @param (in) order            matrix ordering
-     * @param (in) element_size     element size
-     * @param (in) A                specifies the source matrix on the host
-     * @param (in) offA         specifies the offset of matrix A in 
+     * @param order         matrix (in) ordering
+     * @param element_size      element (in) size
+     * @param A             specifies (in) the source matrix on the host
+     * @param offA          specifies (in) the offset of matrix A in
      *                  elements
-     * @param (in) ldA          specifies the leading dimension of 
+     * @param ldA           specifies (in) the leading dimension of
      *                  matrix A in elements
-     * @param (in) nrA          specifies the number of rows of A 
+     * @param nrA           specifies (in) the number of rows of A
      *                  in elements
-     * @param (in) ncA          specifies the number of columns of A 
+     * @param ncA           specifies (in) the number of columns of A
      *                  in elements
-     * @param (in) xA           specifies the top-left x position to 
+     * @param xA            specifies (in) the top-left x position to
      *                  copy from A
-     * @param (in) yA           specifies the top-left y position to 
+     * @param yA            specifies (in) the top-left y position to
      *                  copy from A
-     * @param (in) B                specifies the destination matrix on the 
+     * @param B             specifies (in) the destination matrix on the
      *                  device
-     * @param (in) offB         specifies the offset of matrix B in 
+     * @param offB          specifies (in) the offset of matrix B in
      *                  elements
-     * @param (in) ldB          specifies the leading dimension of 
+     * @param ldB (in)          specifies the leading dimension of
      *                  matrix B in bytes
-     * @param (in) nrB          specifies the number of rows of B 
+     * @param nrB (in)          specifies the number of rows of B
      *                  in elements
-     * @param (in) ncB          specifies the number of columns of B 
+     * @param ncB (in)          specifies the number of columns of B
      *                  in elements
-     * @param (in) xB           specifies the top-left x position to 
+     * @param xB (in)           specifies the top-left x position to
      *                  copy from B
-     * @param (in) yB           specifies the top-left y position to 
+     * @param yB (in)           specifies the top-left y position to
      *                  copy from B
-     * @param (in) nx           specifies the number of elements to 
+     * @param nx (in)           specifies the number of elements to
      *                  copy according to the x dimension (rows)
-     * @param (in) ny           specifies the number of elements to 
+     * @param ny (in)           specifies the number of elements to
      *                  copy according to the y dimension 
      *                  (columns)
-     * @param (in) command_queue        specifies the OpenCL queue
-     * @param (in) numEventsInWaitList  specifies the number of OpenCL events 
+     * @param command_queue (in)        specifies the OpenCL queue
+     * @param numEventsInWaitList (in)  specifies the number of OpenCL events
      *                          to wait for
-     * @param (in) eventWaitList        specifies the list of OpenCL events to 
+     * @param eventWaitList (in)        specifies the list of OpenCL events to
      *                  wait for
      *
      * @return
-     *   - \b clblasSuccess for success
-     *   - \b clblasInvalidValue if:
-     *  - \b xA + \b offA + \b nx is superior to number of columns of A
-     *      - \b xB + \b offB + \b nx is superior to number of columns of B
-     *      - \b yA + \b ny is superior to number of rows of A
-     *      - \b yB + \b ny is superior to number of rows of B
-     * </pre>
+     *   -  clblasSuccess for success
+     *   -  clblasInvalidValue if:
+     *  -  xA +  offA +  nx is superior to number of columns of A
+     *      -  xB +  offB +  nx is superior to number of columns of B
+     *      -  yA +  ny is superior to number of rows of A
+     *      -  yB +  ny is superior to number of rows of B
      */
     public static int clblasWriteSubMatrix(
         int order, 
@@ -13127,13 +12169,11 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a sub-matrix from host (A) to device (B). 
-     *    See \b clblasWriteSubMatrix().
+     * Copies asynchronously a sub-matrix from host (A) to device (B). .
+     *    See  clblasWriteSubMatrix().
      *
-     * @param (out) event   Event objects per each command queue that identify a 
+     * @param event (out)   Event objects per each command queue that identify a
      *          particular kernel execution instance.
-     * </pre>
      */
     public static int clblasWriteSubMatrixAsync(
         int order, 
@@ -13157,7 +12197,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event)
+        cl_event[] event)
     {
         return checkResult(clblasWriteSubMatrixAsyncNative(order, element_size, A, offA, ldA, nrA, ncA, xA, yA, B, offB, ldB, nrB, ncB, xB, yB, nx, ny, command_queue, numEventsInWaitList, eventWaitList, event));
     }
@@ -13183,20 +12223,18 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event);
+        cl_event[] event);
 
 
     /**
-     * <pre>
-     * Copies a sub-matrix from device (A) to host (B). 
-     *    See \b clblasWriteSubMatrix().
+     * Copies a sub-matrix from device (A) to host (B). .
+     *    See  clblasWriteSubMatrix().
      * 
-     * @param (in) A        specifies the source matrix on the device
-     * @param (in) B        specifies the destination matrix on the host
+     * @param A     specifies (in) the source matrix on the device
+     * @param B     specifies (in) the destination matrix on the host
      *
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasReadSubMatrix(
         int order, 
@@ -13248,10 +12286,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a sub-matrix from device (A) to host (B). 
-     *    See \b clblasReadSubMatrix() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a sub-matrix from device (A) to host (B). .
+     *    See  clblasReadSubMatrix() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasReadSubMatrixAsync(
         int order, 
@@ -13275,7 +12311,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event)
+        cl_event[] event)
     {
         return checkResult(clblasReadSubMatrixAsyncNative(order, element_size, A, offA, ldA, nrA, ncA, xA, yA, B, offB, ldB, nrB, ncB, xB, yB, nx, ny, command_queue, numEventsInWaitList, eventWaitList, event));
     }
@@ -13301,20 +12337,18 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event);
+        cl_event[] event);
 
 
     /**
-     * <pre>
-     * Copies a sub-matrix from device (A) to device (B). 
-     *    See \b clblasWriteSubMatrix().
+     * Copies a sub-matrix from device (A) to device (B). .
+     *    See  clblasWriteSubMatrix().
      * 
-     * @param (in) A        specifies the source matrix on the device
-     * @param (in) B        specifies the destination matrix on the device
+     * @param A     specifies (in) the source matrix on the device
+     * @param B     specifies (in) the destination matrix on the device
      *
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasCopySubMatrix(
         int order, 
@@ -13366,10 +12400,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a sub-matrix from device (A) to device (B). 
-     *        See \b clblasCopySubMatrix() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a sub-matrix from device (A) to device (B). .
+     *        See  clblasCopySubMatrix() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasCopySubMatrixAsync(
         int order, 
@@ -13393,7 +12425,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event)
+        cl_event[] event)
     {
         return checkResult(clblasCopySubMatrixAsyncNative(order, element_size, A, offA, ldA, nrA, ncA, xA, yA, B, offB, ldB, nrB, ncB, xB, yB, nx, ny, command_queue, numEventsInWaitList, eventWaitList, event));
     }
@@ -13419,20 +12451,18 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event);
+        cl_event[] event);
 
 
     /**
-     * <pre>
-     * Copies synchronously a vector from host (A) to device (B). 
-     *    See \b clblasWriteSubMatrix().
+     * Copies synchronously a vector from host (A) to device (B). .
+     *    See  clblasWriteSubMatrix().
      * 
-     * @param (in) A        specifies the source vector on the host
-     * @param (in) B        specifies the destination vector on the device
+     * @param A     specifies (in) the source vector on the host
+     * @param B     specifies (in) the destination vector on the device
      *
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasWriteVector(
         long nb_elem, 
@@ -13460,10 +12490,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from host (A) to device (B). 
-     *    See \b clblasWriteVector() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from host (A) to device (B). .
+     *    See  clblasWriteVector() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasWriteVectorAsync(
         long nb_elem, 
@@ -13493,16 +12521,14 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a vector from device (A) to host (B). 
-     *    See \b clblasReadSubMatrix().
+     * Copies synchronously a vector from device (A) to host (B). .
+     *    See  clblasReadSubMatrix().
      * 
-     * @param (in) A        specifies the source vector on the device
-     * @param (in) B        specifies the destination vector on the host
+     * @param A     specifies (in) the source vector on the device
+     * @param B     specifies (in) the destination vector on the host
      *
      * @return
-     *   - see \b clblasReadSubMatrix()
-     * </pre>
+     *   - see  clblasReadSubMatrix()
      */
     public static int clblasReadVector(
         long nb_elem, 
@@ -13530,10 +12556,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from device (A) to host (B). 
-     *    See \b clblasReadVector() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from device (A) to host (B). .
+     *    See  clblasReadVector() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasReadVectorAsync(
         long nb_elem, 
@@ -13563,16 +12587,14 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a vector from device (A) to device (B). 
-     *    See \b clblasCopySubMatrix().
+     * Copies synchronously a vector from device (A) to device (B). .
+     *    See  clblasCopySubMatrix().
      * 
-     * @param (in) A        specifies the source vector on the device
-     * @param (in) B        specifies the destination vector on the device
+     * @param A     specifies (in) the source vector on the device
+     * @param B     specifies (in) the destination vector on the device
      *
      * @return
-     *   - see \b clblasCopySubMatrix()
-     * </pre>
+     *   - see  clblasCopySubMatrix()
      */
     public static int clblasCopyVector(
         long nb_elem, 
@@ -13600,10 +12622,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from device (A) to device (B). 
-     *    See \b clblasCopyVector() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from device (A) to device (B). .
+     *    See  clblasCopyVector() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasCopyVectorAsync(
         long nb_elem, 
@@ -13633,16 +12653,14 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a whole matrix from host (A) to device (B). 
-     *        See \b clblasWriteSubMatrix().
+     * Copies synchronously a whole matrix from host (A) to device (B). .
+     *        See  clblasWriteSubMatrix().
      * 
-     * @param (in) A        specifies the source matrix on the host
-     * @param (in) B        specifies the destination matrix on the device
+     * @param A     specifies (in) the source matrix on the host
+     * @param B     specifies (in) the destination matrix on the device
      *
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasWriteMatrix(
         int order, 
@@ -13678,10 +12696,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from host (A) to device (B). 
-     *        See \b clblasWriteMatrix() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from host (A) to device (B). .
+     *        See  clblasWriteMatrix() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasWriteMatrixAsync(
         int order, 
@@ -13719,16 +12735,14 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a whole matrix from device (A) to host (B). 
-     *    See \b clblasReadSubMatrix().
+     * Copies synchronously a whole matrix from device (A) to host (B). .
+     *    See  clblasReadSubMatrix().
      * 
-     * @param (in) A        specifies the source vector on the device
-     * @param (in) B        specifies the destination vector on the host
+     * @param A     specifies (in) the source vector on the device
+     * @param B     specifies (in) the destination vector on the host
      *
      * @return
-     *   - see \b clblasReadSubMatrix()
-     * </pre>
+     *   - see  clblasReadSubMatrix()
      */
     public static int clblasReadMatrix(
         int order, 
@@ -13764,10 +12778,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from device (A) to host (B). 
-     *        See \b clblasReadMatrix() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from device (A) to host (B). .
+     *        See  clblasReadMatrix() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasReadMatrixAsync(
         int order, 
@@ -13805,16 +12817,14 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies synchronously a whole matrix from device (A) to device (B). 
-     *    See \b clblasCopySubMatrix().
+     * Copies synchronously a whole matrix from device (A) to device (B). .
+     *    See  clblasCopySubMatrix().
      * 
-     * @param (in) A        specifies the source matrix on the device
-     * @param (in) B        specifies the destination matrix on the device
+     * @param A     specifies (in) the source matrix on the device
+     * @param B     specifies (in) the destination matrix on the device
      *
      * @return
-     *   - see \b clblasCopySubMatrix()
-     * </pre>
+     *   - see  clblasCopySubMatrix()
      */
     public static int clblasCopyMatrix(
         int order, 
@@ -13850,10 +12860,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Copies asynchronously a vector from device (A) to device (B). 
-     *        See \b clblasCopyMatrix() and \b clblasWriteSubMatrixAsync().
-     * </pre>
+     * Copies asynchronously a vector from device (A) to device (B). .
+     *        See  clblasCopyMatrix() and  clblasWriteSubMatrixAsync().
      */
     public static int clblasCopyMatrixAsync(
         int order, 
@@ -13891,24 +12899,22 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Fill synchronously a vector with a pattern of a size element_size_bytes
+     * Fill synchronously a vector with a pattern of a size element_size_bytes.
      * 
-     * @param (in) nb_elem             specifies the number of element in buffer A
-     * @param (in) element_size        specifies the size of one element of A. Supported sizes correspond 
+     * @param nb_elem (in)             specifies the number of element in buffer A
+     * @param element_size (in)        specifies the size of one element of A. Supported sizes correspond
      *                                element size used in clBLAS (1,2,4,8,16)
-     * @param (in) A                  specifies the source vector on the device
-     * @param (in) offA                specifies the offset of matrix A in 
+     * @param A      (in)          specifies the source vector on the device
+     * @param offA (in)                specifies the offset of matrix A in
      *                elements
-     * @param (in) pattern             specifies the host address of the pattern to fill with (element_size_bytes)
-     * @param (in) command_queue      specifies the OpenCL queue
-     * @param (in) numEventsInWaitList specifies the number of OpenCL events 
+     * @param pattern (in)             specifies the host address of the pattern to fill with (element_size_bytes)
+     * @param command_queue (in)      specifies the OpenCL queue
+     * @param numEventsInWaitList (in) specifies the number of OpenCL events
      *                    to wait for
-     * @param (in) eventWaitList      specifies the list of OpenCL events to 
+     * @param eventWaitList (in)      specifies the list of OpenCL events to
      *                wait for
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasFillVector(
         long nb_elem, 
@@ -13934,10 +12940,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Fill asynchronously a vector with a pattern of a size element_size_bytes
-     *    See \b clblasFillVector().
-     * </pre>
+     * Fill asynchronously a vector with a pattern of a size element_size_bytes.
+     *    See  clblasFillVector().
      */
     public static int clblasFillVectorAsync(
         long nb_elem, 
@@ -13948,7 +12952,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event)
+        cl_event[] event)
     {
         return checkResult(clblasFillVectorAsyncNative(nb_elem, element_size, A, offA, pattern, command_queue, numEventsInWaitList, eventWaitList, event));
     }
@@ -13961,28 +12965,26 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event);
+        cl_event[] event);
 
 
     /**
-     * <pre>
-     * Fill synchronously a matrix with a pattern of a size element_size_bytes
+     * Fill synchronously a matrix with a pattern of a size element_size_bytes.
      * 
-     * @param (in) order               specifies the matrix order
-     * @param (in) element_size        specifies the size of one element of A. Supported sizes correspond 
+     * @param order (in)               specifies the matrix order
+     * @param element_size (in)        specifies the size of one element of A. Supported sizes correspond
      *                                element size used in clBLAS (1,2,4,8,16)
-     * @param (in) A                  specifies the source vector on the device
-     * @param (in) offA                specifies the offset of matrix A in 
-     * @param (in) ldA                 specifies the leading dimension of A
-     * @param (in) nrA                 specifies the number of row in A
-     * @param (in) ncA                 specifies the number of column in A
-     * @param (in) pattern             specifies the host address of the pattern to fill with (element_size_bytes)
-     * @param (in) command_queue      specifies the OpenCL queue
-     * @param (in) numEventsInWaitList specifies the number of OpenCL events to wait for
-     * @param (in) eventWaitList      specifies the list of OpenCL events to wait for
+     * @param A      (in)          specifies the source vector on the device
+     * @param offA (in)                specifies the offset of matrix A in
+     * @param ldA (in)                 specifies the leading dimension of A
+     * @param nrA (in)                 specifies the number of row in A
+     * @param ncA (in)                 specifies the number of column in A
+     * @param pattern (in)             specifies the host address of the pattern to fill with (element_size_bytes)
+     * @param command_queue (in)      specifies the OpenCL queue
+     * @param numEventsInWaitList (in) specifies the number of OpenCL events to wait for
+     * @param eventWaitList (in)      specifies the list of OpenCL events to wait for
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasFillMatrix(
         int order, 
@@ -14014,35 +13016,33 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Partially fill a sub-matrix with a pattern of a size element_size_bytes 
+     * Partially fill a sub-matrix with a pattern of a size element_size_bytes .
      *        
      * 
-     * @param (in) order               specifies the matrix order
-     * @param (in) element_size        specifies the size of one element of A. Supported values 
+     * @param order (in)               specifies the matrix order
+     * @param element_size (in)        specifies the size of one element of A. Supported values
      *                                are to element sizes used in clBLAS - that is 1, 2, 4, 8 or 16 
-     * @param (in) offA                specifies the offset of matrix A in elements
-     * @param (in) ldA                 specifies the leading dimension of A in elements
-     * @param (in) nrA        specifies the number of rows of A 
+     * @param offA (in)                specifies the offset of matrix A in elements
+     * @param ldA (in)                 specifies the leading dimension of A in elements
+     * @param nrA        (in)  specifies the number of rows of A
      *                in elements
-     * @param (in) ncA        specifies the number of columns of A 
+     * @param ncA        (in)  specifies the number of columns of A
      *                in elements
-     * @param (in) xA         specifies the top-left x position to 
+     * @param xA         (in)  specifies the top-left x position to
      *                copy from A
-     * @param (in) yA         specifies the top-left y position to 
+     * @param yA         (in)  specifies the top-left y position to
      *                copy from A
-     * @param (in) nx         specifies the number of elements to 
+     * @param nx (in)         specifies the number of elements to
      *                copy according to the x dimension (rows)
-     * @param (in) ny         specifies the number of elements to 
+     * @param ny (in)         specifies the number of elements to
      *                copy according to the y dimension 
      *                (columns)
-     * @param (in) pattern             specifies the host address of the pattern to fill with (element_size_bytes)
-     * @param (in) command_queue      specifies the OpenCL queue
-     * @param (in) numEventsInWaitList specifies the number of OpenCL events to wait for
-     * @param (in) eventWaitList      specifies the list of OpenCL events to wait for
+     * @param pattern (in)             specifies the host address of the pattern to fill with (element_size_bytes)
+     * @param command_queue (in)      specifies the OpenCL queue
+     * @param numEventsInWaitList (in) specifies the number of OpenCL events to wait for
+     * @param eventWaitList (in)      specifies the list of OpenCL events to wait for
      * @return
-     *   - see \b clblasWriteSubMatrix()
-     * </pre>
+     *   - see  clblasWriteSubMatrix()
      */
     public static int clblasFillSubMatrix(
         int order, 
@@ -14082,10 +13082,8 @@ public class CLBLAS
 
 
     /**
-     * <pre>
-     * Asynchronous asynchronously fill a sub-matrix with a pattern of a size element_size_bytes  
-     *    See \b clblasFillSubMatrix().
-     * </pre>
+     * Asynchronous asynchronously fill a sub-matrix with a pattern of a size element_size_bytes  .
+     *    See  clblasFillSubMatrix().
      */
     public static int clblasFillSubMatrixAsync(
         int order, 
@@ -14103,7 +13101,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event)
+        cl_event[] event)
     {
         return checkResult(clblasFillSubMatrixAsyncNative(order, element_size, A, offA, ldA, sxA, syA, xA, yA, nx, ny, host, command_queue, numEventsInWaitList, eventWaitList, event));
     }
@@ -14123,7 +13121,7 @@ public class CLBLAS
         cl_command_queue command_queue, 
         int numEventsInWaitList, 
         cl_event[] eventWaitList, 
-        cl_event event);
+        cl_event[] event);
 
 
     /**
