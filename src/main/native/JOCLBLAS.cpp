@@ -27,7 +27,7 @@
 
 #include "JOCLBLAS.hpp"
 
-#define JOCL_BLAS_STATUS_INTERNAL_ERROR -16384;
+#define JOCL_BLAS_STATUS_INTERNAL_ERROR -32786;
 
 #include <string.h>
 #include <string>
