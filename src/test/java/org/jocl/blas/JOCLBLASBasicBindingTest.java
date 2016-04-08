@@ -1,3 +1,4 @@
+package org.jocl.blas;
 import static org.junit.Assert.assertTrue;
 
 import org.jocl.blas.CLBLAS;
