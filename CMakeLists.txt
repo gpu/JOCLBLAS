@@ -19,6 +19,19 @@ find_package(JNI REQUIRED)
 add_subdirectory(../JOCLCommon
   ${CMAKE_CURRENT_BINARY_DIR}/JOCLCommon)
 
+#############################################################################
+# Find the clBLAS directory
+
+find_path(CLBLAS_INCLUDE_DIR
+  NAMES include
+  DOC "clBLAS include directory"
+)
+find_file(CLBLAS_LIBRARY
+  NAMES clblas
+  DOC "clBLAS library"
+)
+
+
 
 #############################################################################
 # Set the variables that are later used to build the name of the native 
@@ -67,18 +80,14 @@ include_directories(
   ${JOCLCommon_SOURCE_DIR}/src/main/include
   ${JOCLCommon_SOURCE_DIR}/src/main/native
   ${JNI_INCLUDE_DIRS}
+  ${CLBLAS_INCLUDE_DIR}
 )
   
 add_library(JOCLBLAS_${JOCL_BLAS_VERSION}-${JOCL_HOST}-${JOCL_ARCH}
   src/main/native/JOCLBLAS.cpp 
 )
 
-find_library(clBLAS_LIBRARY
-    NAMES clBLAS
-    HINTS ${PROJECT_SOURCE_DIR}/lib
-)
-
 target_link_libraries(
   JOCLBLAS_${JOCL_BLAS_VERSION}-${JOCL_HOST}-${JOCL_ARCH} 
-  ${clBLAS_LIBRARY}
+  ${CLBLAS_LIBRARY}
   JOCLCommon)
