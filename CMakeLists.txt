@@ -94,4 +94,4 @@ target_link_libraries(
 
 #############################################################################
 # Enable C++11 features
-set_property(TARGET JOCLBLAS_${JOCL_BLAST_VERSION}-${JOCL_HOST}-${JOCL_ARCH} PROPERTY CXX_STANDARD 11)
+set_property(TARGET JOCLBLAS_${JOCL_BLAS_VERSION}-${JOCL_HOST}-${JOCL_ARCH} PROPERTY CXX_STANDARD 11)
